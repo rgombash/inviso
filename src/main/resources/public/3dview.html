@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Inviso 3D view</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			html, body {
+				width: 100%;
+				height: 100%;
+			}
+
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+				font-family: arial;
+			}
+
+			#blocker {If we wanted to do JSON transformations without Jolt, we’d have to write specialized transformation code for each different data. With this approach, as the amount of filters increased, the complexity of the code would also rise unnecessarily. In fact the size of the code that did the transformation could pass the size of the code that did the actual work with the data. Another way of doing transformation without us having to write transformation code would be to build a complicated transformation pipeline:
+
+
+
+				position: absolute;
+
+				width: 100%;
+				height: 100%;
+
+				background-color: rgba(0,0,0,0.5);
+
+			}
+
+			#instructions {
+
+				width: 100%;
+				height: 100%;
+
+				display: -webkit-box;
+				display: -moz-box;
+				display: box;
+
+				-webkit-box-orient: horizontal;
+				-moz-box-orient: horizontal;
+				box-orient: horizontal;
+
+				-webkit-box-pack: center;
+				-moz-box-pack: center;
+				box-pack: center;
+
+				-webkit-box-align: center;
+				-moz-box-align: center;
+				box-align: center;
+
+				color: #ffffff;
+				text-align: center;
+
+				cursor: pointer;
+
+			}
+			
+			/* loader animation */
+			.loader {
+			    border: 8px solid #f3f3f3; /* Light grey */
+			    border-top: 8px solid #3498db; /* Blue */
+			    border-radius: 50%;
+			    width: 60px;
+			    height: 60px;
+			    animation: spin 2s linear infinite;
+			}
+
+			#stats {
+			    position: fixed;
+			    bottom: 0;
+			    right: 0;
+			}
+
+			.stats img{
+ 				display: inline;
+  				vertical-align: bottom;
+  				float: none;
+			}
+
+			@keyframes spin {
+			    0% { transform: rotate(0deg); }
+			    100% { transform: rotate(360deg); }
+			}
+
+		</style>
+	</head>
+	<body>
+		<script src="threejs/three.js"></script>
+		<script src="threejs/controls/PointerLockControls.js"></script>
+		<script type="text/javascript" src="threejs/lib/dat-gui/dat.gui.js"></script>
+
+
+		<div id="blocker">
+
+			<div id="instructions">
+				<span style="font-size:40px">Click to enter</span>
+				<br />
+				(W, A, S, D = Move, MOUSE = Look around, MOUSE SCROLL = zoom in/out, MOUSE CLICK = select node)
+			</div>
+
+		</div>
+
+		<div class="loader" id="loader"></div>
+		<div id="hostname"></div>
+		<div id="stats">Stats</div>
+
+		<script src="3dview.js"></script>
+
+	</body>
+</html>

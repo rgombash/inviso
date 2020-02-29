@@ -1,0 +1,6 @@
+target/*
+src/main/resources/public/api/*
+!target/.gitkeep 
+.idea
+config.properties
+inviso.iml
