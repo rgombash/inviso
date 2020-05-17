@@ -107,7 +107,6 @@ If running locally you should go to http://localhost:4567 for index page
 * enable https and wss
 * add more data sources (e.g.: prometheus, kubernetes, GCP, ...)
 * test subscription model (client subscribes to periodic / streaming updates)
-* standardize Proxy Service response schema
 
 ### Final notes
 This a hobby project that I am playing with sporadically for few years now. Initial concept was written in python and panda3d engine later rewritten to Java and Three.js engine.
