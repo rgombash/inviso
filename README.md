@@ -8,7 +8,7 @@ Expanding perception and visibility of the complex distributed computing systems
 
 ### What does it do currently ?
 
-Gets list of pods from OpenShift cluster and displays it in 3d space with some meta info embedded in visual representation.
+Gets list of pods from OpenShift cluster or Google Cloud compute nodes and displays it in 3d space with some meta info embedded in visual representation.
 
 ### Architecture
 
@@ -16,7 +16,11 @@ Gets list of pods from OpenShift cluster and displays it in 3d space with some m
 
 client/server communication is done via simple JSON asynchronously.
 
-Currently there is only one data source plugin but adding more plugins for different data sources (eg.: public cloud providers) should be relatively easy.
+Currently there are plugins for getting node or pos list from
+* OpenShift OKD v3.11 with API v1 (plugin : OpenShift.java) 
+* Google Cloud compute nodes (plugin : GoogleCloudPlatform.java)  
+
+Adding more plugins for different data sources (eg.: public cloud providers) should be relatively easy following the pattern in existing plugins.
 
 ### Proxy Service
 
@@ -27,7 +31,7 @@ By default service runs on port 4567 (both http and ws)
 
 #### Proxy Service plugins
 
-##### OpenShift plugin
+##### OpenShift Plugin
 
 Gets and filters pods from OpenShift API. Plugin was tested with OKD v3.11 with API v1
 
@@ -39,6 +43,19 @@ To get your api key use oc tool :
 `oc whoami -t` 
 
 update config.properties accordingly
+
+##### Google Cloud Compute Plugin
+
+Uses Google's API Client for Java and gcloud CLI authentication.  
+
+Howto for installing gcloud command line tool : https://cloud.google.com/sdk/docs/quickstarts
+After setting it up and successfully authenticating, you need you set environment variable GOOGLE_APPLICATION_CREDENTIALS to point ti gcloud credentials token.
+
+In Linux/bash: 
+
+`export GOOGLE_APPLICATION_CREDENTIALS = /home/YOUR_HOME_DIR/.config/gcloud/legacy_credentials/YOUR_USER@SOMEWHERE.COM/adc.json`
+
+Or use your preferred IDE to set up runtime environment variable.   
 
 ### Visualisation Clients
 
@@ -54,9 +71,10 @@ Colors represent different roles. Aiming and clicking on specific box shows basi
 
 If run locally you can access it on : http://localhot:4567/3dview.html
 
-Accepts filter parameter : http://localhost:4567/3dview.html?search=some_namespace_search_string
+* For OpenShift : http://localhost:4567/3dview.html?provider=openshift&search=SOME_SEARCH_STRING. If no search string provided it will list all available pods.
+* For Google Cloud compute : http://localhost:4567/3dview.html?provider=gcp&zone=YOUR-ZONE&project=YOUR-PROJECT
 
-JS visualization code is a modified three.js example : https://threejs.org/examples/#misc_controls_pointerlock
+For JS visualization three.js example was used as a starting point: https://threejs.org/examples/#misc_controls_pointerlock
 
 #### Debug endpoint for server messages
 

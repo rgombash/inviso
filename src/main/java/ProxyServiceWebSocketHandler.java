@@ -13,7 +13,7 @@ public class ProxyServiceWebSocketHandler {
         ProxyService.userUsernameMap.put(user, username);
 
         JSONObject response  = new JSONObject()
-                .put("servermsg_user_connect", username);
+                .put("user_connected", username);
 
         ProxyService.broadcastMessage(sender = "Server", msg = response.toString());
     }
@@ -22,7 +22,7 @@ public class ProxyServiceWebSocketHandler {
     public void onClose(Session user, int statusCode, String reason) {
         String username = ProxyService.userUsernameMap.get(user);
         ProxyService.userUsernameMap.remove(user);
-        ProxyService.broadcastMessage(sender = "Server", msg = (username + " disconnected"));
+        ProxyService.broadcastMessage(sender = "Server", msg = ("{\"user_disconnected\":\"" + username + "\"}"));
     }
 
     @OnWebSocketMessage

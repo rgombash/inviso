@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qmetric.spark.authentication.AuthenticationDetails;
 import com.qmetric.spark.authentication.BasicAuthenticationFilter;
 import org.eclipse.jetty.websocket.api.Session;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import static spark.Spark.*;
@@ -97,6 +98,15 @@ public class ProxyService {
         }
     }
 
+    //prepare json string data to be sent to client
+    public static String prepareMessage(JSONArray Nodes){
+        JSONObject response  = new JSONObject()
+                .put("response", "getservers")
+                .put("data",  Nodes);
+
+        return response.toString();
+    }
+
     public static boolean parseCommand(String message, String sender){
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -113,15 +123,31 @@ public class ProxyService {
                         System.out.println("keepalive from " + sender);
                         break;
                     case "broadcast":
+                        //{"command":"broadcast","message":"test msg"}
                         message = jsoncommand.get("message").asText();
                         System.out.println("broadcast from" + sender);
                         ProxyService.broadcastMessage(sender, message);
                         break;
-                    case "OpenshiftGetContainers":
+                    case "OpenshiftGetPods":
+                        //{"command":"OpenshiftGetPods","filter":""}
                         String filter_openshift = jsoncommand.get("filter").asText();
-                        String outstring_openshift = OpenShift.GetContainersOpenShift(filter_openshift);
-                        //String outstring_openshift = "outstring";
+                        String outstring_openshift = prepareMessage(OpenShift.GetContainersOpenShift(filter_openshift));
                         ProxyService.sendMessage("server", sender, outstring_openshift);
+                        break;
+                    case "GCPGetCompute":
+                        //{"command":"GCPGetCompute","project":"","zone":""}
+                        String gcp_project = jsoncommand.get("project").asText();
+                        String gcp_zone = jsoncommand.get("zone").asText();
+                        String outstring_gcp = prepareMessage(GoogleCloudPlatform.getInstances(gcp_project, gcp_zone ));
+                        ProxyService.sendMessage("server", sender, outstring_gcp);
+                        break;
+                    case "transform":
+                        //command fot testing purposes
+                        //{"command":"transform"}
+                        JSONArray outnodes_openshift1 = OpenShift.GetContainersOpenShift("car");
+                        //String outstring = transformer_test.Transform(outstring_openshift1);
+                        String outstring2 = outnodes_openshift1.toString();
+                        ProxyService.sendMessage("server", sender, outstring2);
                         break;
                     default:
                         System.out.println("unknown command");

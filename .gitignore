@@ -4,3 +4,4 @@ src/main/resources/public/api/*
 .idea
 config.properties
 inviso.iml
+local_notes.txt

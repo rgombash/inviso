@@ -1,33 +1,31 @@
 //gui
 var FizzyText = function() {
 	this.name = "";
-	this.generateName = "";
-	this.namespace = "";
-	this.selfLink = "";
+	this.project = "";
 	this.uid = "";
-	this.resourceVersion = "";
-	this.creationTimestamp = "";
 	this.phase = "";
+	this.nodeType = "";
+	this.serviceProvider = "";
 	this.fulljson = "";
 	this.fog = false;
-	this.explode = function() {
-		//so something on click
-	};
-	this.noiseStrength = 1;	  			
 };  			
 
 var guitext = new FizzyText();
 var gui = new dat.GUI({width: 600,});
 gui.add(guitext, 'name');
-gui.add(guitext, 'generateName');
-gui.add(guitext, 'namespace');
-gui.add(guitext, 'selfLink');  			
+gui.add(guitext, 'project');
 gui.add(guitext, 'uid');
-gui.add(guitext, 'resourceVersion');
-gui.add(guitext, 'creationTimestamp');
 gui.add(guitext, 'phase');
+gui.add(guitext, 'nodeType');
+gui.add(guitext, 'serviceProvider');
 gui.add(guitext, 'fog');
-gui.add(guitext, 'explode');    		
+
+//guitext.nodeType = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.nodeType;
+//guitext.serviceProvider = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider;
+
+
+//guitext.resourceVersion = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.metadata.resourceVersion;
+//guitext.creationTimestamp = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.metadata.creationTimestamp;
 
 var f1 = gui.addFolder('more');
 f1.add(guitext, 'fulljson');
@@ -48,25 +46,21 @@ var raycaster;
 var blocker = document.getElementById( 'blocker' );
 var instructions = document.getElementById( 'instructions' );
 
-// http://www.html5rocks.com/en/tutorials/pointerlock/intro/
 
+// pointer lock section 
+// http://www.html5rocks.com/en/tutorials/pointerlock/intro/
 var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 
 if ( havePointerLock ) {
-
 	var element = document.body;
-
 	var pointerlockchange = function ( event ) {
 
 		if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
-
 			controlsEnabled = true;
 			controls.enabled = true;
 
 			blocker.style.display = 'none';
-
 		} else {
-
 			controls.enabled = false;
 
 			blocker.style.display = '-webkit-box';
@@ -74,15 +68,11 @@ if ( havePointerLock ) {
 			blocker.style.display = 'box';
 
 			instructions.style.display = '';
-
 		}
-
 	};
 
 	var pointerlockerror = function ( event ) {
-
 		instructions.style.display = '';
-
 	};
 
 	// Hook pointer lock state change events
@@ -102,40 +92,28 @@ if ( havePointerLock ) {
 		element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
 
 		if ( /Firefox/i.test( navigator.userAgent ) ) {
-
 			var fullscreenchange = function ( event ) {
-
 				if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
-
 					document.removeEventListener( 'fullscreenchange', fullscreenchange );
 					document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
 
 					element.requestPointerLock();
 				}
-
 			};
-
 			document.addEventListener( 'fullscreenchange', fullscreenchange, false );
 			document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
 
 			element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
 
 			element.requestFullscreen();
-
 		} else {
-
 			element.requestPointerLock();
-
 		}
-
 	}, false );
-
 } else {
-
 	instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
-
 }
-
+// end - pointer locks section 
 
 //scale & grid denity
 var scale = 10;
@@ -163,10 +141,6 @@ var prevTime = performance.now();
 var velocity = new THREE.Vector3();
 
 var mouseWheelDelata = 0;
-
-//testing purposes
-var IdList = new Array();
-
 
 function init() {
 
@@ -326,8 +300,8 @@ function init() {
 
 
 	// cube objects
-	// scale: defines cube size. by decresing size it increses number of viewvable objects, thus rendering distance (more objects fit into same scene).Also infulences placement of cubes (grid density)
-	
+	// scale: defines cube size. by decresing size it increses number of viewvable objects, thus rendering distance (more objects fit into same scene).Also infulences placement of cubes (grid density)	
+
 	scale = 10;
 
 	console.log(geometry.faces.length);
@@ -369,12 +343,11 @@ function init() {
 	selectcubemesh.visible = false;
 
 	//***********************				
-	// get data from server 				
+	// get data from proxy  				
 	//***********************
 	
 	var wsUri = "ws://" + location.hostname + ":" + location.port + "/wsapi";
-	//var wsUri = "ws://127.0.0.1:4567/chat";
-
+	
 	//get the query string
 	querystrig = QueryString();
 	if (querystrig.search)
@@ -382,15 +355,35 @@ function init() {
 	else
 		search = '';
 
-	//prepare command for server 
-	command = '{"command":"OpenshiftGetContainers","filter":"' + search + '"}';
+	if (querystrig.project)
+		project = querystrig.project;
+	else
+		project = '';
+
+	if (querystrig.zone)
+		zone = querystrig.zone;
+	else
+		zone = '';
+
+	if (querystrig.provider)
+		provider = querystrig.provider;
+	else
+		provider = '';
+
+	//prepare initial command for server depending on querystring values
+	if (provider == "openshift" )
+		command = '{"command":"OpenshiftGetPods","filter":"' + search + '"}';
+	else if (provider == "gcp" ) 
+		command = '{"command":"GCPGetCompute","project":"'+ project + '","zone":"' + zone + '"}';
+	else 
+		command = '{"command":"ping"}';
 
 	websocket = new WebSocket(wsUri);
 
 	//show loader
 	HideShowLoader(true);
 
-	//crete object group to group all server objects
+	//crete object group to group all node objects
 	var ServerGroup = new THREE.Group();
 	ServerGroup.name = "ServersGroup";
 
@@ -402,9 +395,6 @@ function init() {
 		websocket.onmessage = function(message) 
 		{
 
-			//var pattern = /\[(.*)\]/g
-			//var rawdata = message.data.match(pattern);
-			
 			var full_arr1 = JSON.parse(message.data);
 			full_arr = JSON.parse(full_arr1.userMessage);
 			
@@ -419,14 +409,18 @@ function init() {
 
 			console.log("server command > " + response_command);
 
-			//initial getserver command
+			//check response is received for getservers command
 			if(response_command=="getservers"){
 
 				arr = full_arr.data;
 				object_count = arr.length					 
 
-				//sort by role
-	  			arr.sort(compareRoleSort);
+				//sort by project or name depending on provider
+				if (provider == "openshift" )
+					arr.sort(compareRoleSort);
+				else if (provider == "gcp" ) 
+					arr.sort(compareNameSort);
+	  			
 
 				//min square side to fit all objects
 				q = Math.ceil(Math.sqrt(object_count))
@@ -439,6 +433,7 @@ function init() {
 				grid_density = 1.5;
 
 				prev_role = '';
+				prev_name = '';
 
 			 	console.log(arr.length)
 
@@ -458,15 +453,15 @@ function init() {
 
  					state = 2
  					state = 1
-					if (arr[i]['status']['phase'] == 'Running') state = 2;
+					if (arr[i]['state'] == 'running') state = 2;
 
 					//cubes 	
 					//material = new THREE.MeshPhongMaterial( { specular: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors } );
 					material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: THREE.VertexColors } );
 					var mesh = new THREE.Mesh( geometry, material );
 
-					//add sdb data to current mesh
-					mesh.userData.sdb = arr[i]
+					//add node data to current mesh
+					mesh.userData.node = arr[i]
 
 					//console.log(arr[i])
 
@@ -477,65 +472,41 @@ function init() {
 					mesh.position.y = state * scale * grid_density;
 
 					mesh.position.z = y * scale * grid_density;
-					
-					
+										
 					//change mesh name to fqdn
-					//console.log(arr[i]['generateName']);
-					mesh.name = arr[i]['metadata']['generateName'];
+					console.log(arr[i]['name']);
+					mesh.name = arr[i]['name'];
 					
 					//add mesh(server object) to group
 					ServerGroup.add( mesh );
-					//scene.add( mesh );
 
 					//material.color.setHSL( Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
-					//change collor when role changes
-					if (arr[i]['metadata']['generateName'] != prev_role)
-					{
-						ar = Math.random();	
-						br = Math.random();
-						prev_role = arr[i]['metadata']['generateName']
+					//change collor when role or name changes deppending on provider
+					if (provider == "openshift" ){
+						if (arr[i]['project'] != prev_role)
+						{
+							ar = Math.random();	
+							br = Math.random();
+							prev_role = arr[i]['project']
+						}
+					}else if (provider == "gcp" ){
+						if (arr[i]['name'].substring(0, 3) != prev_name.substring(0, 3))
+						{
+							ar = Math.random();	
+							br = Math.random();
+							prev_name = arr[i]['name']
+						}
 					}
-					
+
 					material.color.setHSL(ar * 0.8 + 0.5, 0.75, br * 0.25 + 0.75 );
 
-					//objects.push( mesh );
-
-				//for-to end for cueb draws
-			  	}						  	if(scene.getObjectByName("ServersGroup").userData.intresection)
-	{
-		fqdn = scene.getObjectByName("ServersGroup").userData.intresection.userData['sdb']['metadata']['name'];
-		
-		guitext.name = fqdn
-		guitext.generateName = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.generateName;
-		guitext.namespace = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.namespace;
-		guitext.selfLink = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.selfLink;
-		guitext.uid = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.uid;
-		guitext.resourceVersion = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.resourceVersion;
-		guitext.creationTimestamp = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.creationTimestamp;
-		guitext.phase = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.status.phase;
-
-		console.log(scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb);
-
-		//update gui after changes
-		for (var i in gui.__controllers) {
-			gui.__controllers[i].updateDisplay();
-			};			
-			  	
-			//move selector box
-			selectcubemesh.position.x = scene.getObjectByName("ServersGroup").userData.intresection.position.x;
-		selectcubemesh.position.y = scene.getObjectByName("ServersGroup").userData.intresection.position.y;
-		selectcubemesh.position.z = scene.getObjectByName("ServersGroup").userData.intresection.position.z;
-
-		selectcubemesh.scale.y = scene.getObjectByName("ServersGroup").userData.intresection.scale.y;
-
-		selectcubemesh.visible = true;
-	};
-
-
+				//for-to end for cube draw
+			  	}						  	
+			//end getservers section
 			}
 			
 			if(response_command=="getgraphite"){
-				//do something							
+				//legacy artefact for fetching graphite data
 				index = -1
 				console.log(full_arr[0]['nodes']);
 				console.log(full_arr[0]['values']);
@@ -553,14 +524,13 @@ function init() {
 				} );
 			}
 		
-		//hide loader
-		HideShowLoader(false);
+			//hide loader
+			HideShowLoader(false);
 		
-		//close websocket
-		//websocket.close();
+			//close websocket
+			//websocket.close();
 
-		} 
-
+		}		
 	}
 
 	//add servers object group to scene 
@@ -573,19 +543,27 @@ function init() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	document.body.appendChild( renderer.domElement );
 
-	//
-
 	window.addEventListener( 'resize', onWindowResize, false );
 
 }
 
 //function for sorting by role
 function compareRoleSort(a, b) {
-    if (a['metadata']['generateName'] === b['metadata']['generateName']) {
+    if (a['project'] === b['project']) {
         return 0;
     }
     else {
-        return (a['metadata']['generateName'] < b['metadata']['generateName']) ? -1 : 1;
+        return (a['project'] < b['project']) ? -1 : 1;
+    }
+}	
+
+//function for sorting by name 
+function compareNameSort(a, b) {
+    if (a['name'] === b['name']) {
+        return 0;
+    }
+    else {
+        return (a['name'] < b['name']) ? -1 : 1;
     }
 }	
 
@@ -641,10 +619,10 @@ function animate() {
 			//add intersected object to scene graph and serversgroup so it can be accessed globaly
 			scene.getObjectByName("ServersGroup").userData.intresection=cam_intersections[ 0 ].object
 			
-			//console.log(intersections[ 0 ].object.userData['sdb']);
-			role = cam_intersections[ 0 ].object.userData['sdb']['metadata']['namespace'];
-			host = cam_intersections[ 0 ].object.userData['sdb']['metadata']['generateName'];
-			hostname = cam_intersections[ 0 ].object.userData['sdb']['metadata']['name'];
+			//console.log(intersections[ 0 ].object.userData['node']);
+			role = cam_intersections[ 0 ].object.userData['node']['project'];
+			host = cam_intersections[ 0 ].object.userData['node']['name'];
+			hostname = cam_intersections[ 0 ].object.userData['node']['name'];
 			//console.log(cam_intersections[ 0 ].object.position)
 			//console.log(host);
 			document.getElementById("hostname").innerHTML = hostname + " [" + role + "]";
@@ -673,8 +651,7 @@ function animate() {
 
 		}					
 
-		//mouse wheel movement
-		
+		//mouse wheel movement		
 		if(mouseWheelDelata!=0)
 		{
 			//speed divider, lower value higher mousewhell speed
@@ -722,7 +699,7 @@ function animate() {
 			Key1 = false;
 		}
 
-		// do stuff
+		// on keypress do stuff
 		if (Key2){
 			//reset sizes and position 
 			scene.getObjectByName("ServersGroup").traverse( function ( obj ) {
@@ -731,7 +708,7 @@ function animate() {
 				 	obj.scale.y = 1;
 					//reset position 
 					state = 1
-					if (obj.userData.sdb.state == 'live') state = 2;
+					if (obj.userData.node.state == 'live') state = 2;
 					//obj.position.y = state * 10 * 1.5;					
 					obj.position.y = state * scale * grid_density;
 				}
@@ -741,7 +718,7 @@ function animate() {
 			Key2 = false;
 		}
 
-		// do stuff
+		// on keypress do stuff
 		if (Key3){
 			x=0;
 			scene.getObjectByName("ServersGroup").traverse( function ( obj ) {
@@ -749,15 +726,12 @@ function animate() {
 			 	if(x>10) x=1;														
 				//delta = 10 * Math.random()
 				scaleY(obj,x);
-				//obj.scale.y = x;
-				
-				//obj.translateY(x / 2);
 			} );
 
 			Key3 = false;
 		}
 
-							// do stuff
+		// on keypress do stuff
 		if (Key4){
 			x=0;
 			scene.getObjectByName("ServersGroup").traverse( function ( obj ) {
@@ -769,9 +743,9 @@ function animate() {
 		}
 
 
-		// do stuff
+		// on keypress do stuff
 		if (Key5){
-		
+			//test artefacts from graphite fetch 
 			var hostnames = []
 			scene.getObjectByName("ServersGroup").traverse( function ( obj ) {
 				if(obj.name!="ServersGroup")
@@ -845,26 +819,25 @@ function HideShowLoader(showhide) {
 function selectbox(selectcubemesh){
 	if(scene.getObjectByName("ServersGroup").userData.intresection)
 	{
-		fqdn = scene.getObjectByName("ServersGroup").userData.intresection.userData['sdb']['metadata']['name'];
+		fqdn = scene.getObjectByName("ServersGroup").userData.intresection.userData['node']['name'];
 		
-		guitext.name = fqdn
-		guitext.generateName = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.generateName;
-		guitext.namespace = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.namespace;
-		guitext.selfLink = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.selfLink;
-		guitext.uid = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.uid;
-		guitext.resourceVersion = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.resourceVersion;
-		guitext.creationTimestamp = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.metadata.creationTimestamp;
-		guitext.phase = scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb.status.phase;
+		guitext.name = fqdn		
+		guitext.project = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.project;	
+		guitext.uid = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.uid;
+		guitext.phase = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.state;
+		guitext.nodeType = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.nodeType;
+		guitext.serviceProvider = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider;
 
-		console.log(scene.getObjectByName("ServersGroup").userData.intresection.userData.sdb);
+		console.log(scene.getObjectByName("ServersGroup").userData.intresection.userData.node);
 
 		//update gui after changes
-		for (var i in gui.__controllers) {
+		for (var i in gui.__controllers) 
+		{
 			gui.__controllers[i].updateDisplay();
-			};			
+		};			
 			  	
-			//move selector box
-			selectcubemesh.position.x = scene.getObjectByName("ServersGroup").userData.intresection.position.x;
+		//move selector box
+		selectcubemesh.position.x = scene.getObjectByName("ServersGroup").userData.intresection.position.x;
 		selectcubemesh.position.y = scene.getObjectByName("ServersGroup").userData.intresection.position.y;
 		selectcubemesh.position.z = scene.getObjectByName("ServersGroup").userData.intresection.position.z;
 
