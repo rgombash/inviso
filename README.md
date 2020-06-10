@@ -16,7 +16,7 @@ Gets list of pods from OpenShift cluster or Google Cloud compute nodes and displ
 
 client/server communication is done via simple JSON asynchronously.
 
-Currently there are plugins for getting node or pos list from
+Currently there are plugins for getting node or pod list from
 * OpenShift OKD v3.11 with API v1 (plugin : OpenShift.java) 
 * Google Cloud compute nodes (plugin : GoogleCloudPlatform.java)  
 
@@ -25,7 +25,7 @@ Adding more plugins for different data sources (eg.: public cloud providers) sho
 ### Proxy Service
 
 Proxy Service is intended to provide simple and universal websocket interface for various data sources.
-It is written in Java and Spark framework. Currently has only OpenShift data source (plugin).
+It is written in Java and Spark framework. Currently has only OpenShift and GCP Compute data source (plugin).
 Apart from websocket endpoint service also has http endpoint for static content. 
 By default service runs on port 4567 (both http and ws)
 
@@ -49,7 +49,7 @@ update config.properties accordingly
 Uses Google's API Client for Java and gcloud CLI authentication.  
 
 Howto for installing gcloud command line tool : https://cloud.google.com/sdk/docs/quickstarts
-After setting it up and successfully authenticating, you need you set environment variable GOOGLE_APPLICATION_CREDENTIALS to point ti gcloud credentials token.
+After setting it up and successfully authenticating, you need you set environment variable GOOGLE_APPLICATION_CREDENTIALS to point to gcloud credentials token.
 
 In Linux/bash: 
 
