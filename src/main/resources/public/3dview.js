@@ -365,6 +365,11 @@ function init() {
 	else
 		zone = '';
 
+	if (querystrig.context)
+		context = querystrig.context;
+	else
+		context = '';
+
 	if (querystrig.provider)
 		provider = querystrig.provider;
 	else
@@ -375,6 +380,8 @@ function init() {
 		command = '{"command":"OpenshiftGetPods","filter":"' + search + '"}';
 	else if (provider == "gcp" ) 
 		command = '{"command":"GCPGetCompute","project":"'+ project + '","zone":"' + zone + '"}';
+	else if (provider == "k8s" ) 
+		command = '{"command":"GetKubernetes","context":"' + context + '"}';
 	else 
 		command = '{"command":"ping"}';
 
@@ -418,7 +425,7 @@ function init() {
 				//sort by project or name depending on provider
 				if (provider == "openshift" )
 					arr.sort(compareRoleSort);
-				else if (provider == "gcp" ) 
+				else if (provider == "gcp" | provider == "k8s") 
 					arr.sort(compareNameSort);
 	  			
 
@@ -489,7 +496,7 @@ function init() {
 							br = Math.random();
 							prev_role = arr[i]['project']
 						}
-					}else if (provider == "gcp" ){
+					}else if (provider == "gcp" | provider == "k8s"){
 						if (arr[i]['name'].substring(0, 3) != prev_name.substring(0, 3))
 						{
 							ar = Math.random();	

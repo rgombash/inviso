@@ -19,6 +19,7 @@ client/server communication is done via simple JSON asynchronously.
 Currently there are plugins for getting node or pod list from
 * OpenShift OKD v3.11 with API v1 (plugin : OpenShift.java) 
 * Google Cloud compute nodes (plugin : GoogleCloudPlatform.java)  
+* Kubernetes (plugin : Kubernetes.java, notes: tested only with GKE)
 
 Adding more plugins for different data sources (eg.: public cloud providers) should be relatively easy following the pattern in existing plugins.
 
@@ -56,6 +57,11 @@ In Linux/bash:
 `export GOOGLE_APPLICATION_CREDENTIALS = /home/YOUR_HOME_DIR/.config/gcloud/legacy_credentials/YOUR_USER@SOMEWHERE.COM/adc.json`
 
 Or use your preferred IDE to set up runtime environment variable.   
+
+##### Kubernetes
+
+For plugin to work you need to have configured kubectl on machine where you will run Inviso ProxyService, or at least config file with at least one context. On Linux usually in ~/.kube/config
+Plugin was only tested on GKE. 
 
 ### Visualisation Clients
 

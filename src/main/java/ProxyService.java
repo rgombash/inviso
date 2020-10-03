@@ -9,11 +9,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qmetric.spark.authentication.AuthenticationDetails;
 import com.qmetric.spark.authentication.BasicAuthenticationFilter;
+import io.kubernetes.client.openapi.ApiException;
 import org.eclipse.jetty.websocket.api.Session;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import static spark.Spark.*;
+
+import java.io.IOException;
 
 public class ProxyService {
 
@@ -22,7 +25,6 @@ public class ProxyService {
     static int nextUserNumber = 1; //Assign to username for next connecting user
     // load properties
     static Properties prop = LoadConfig();
-
 
     public static void main(String[] args) {
         //staticFiles.location("/public"); //debug.html is served at localhost:4567 (default port)
@@ -141,13 +143,19 @@ public class ProxyService {
                         String outstring_gcp = prepareMessage(GoogleCloudPlatform.getInstances(gcp_project, gcp_zone ));
                         ProxyService.sendMessage("server", sender, outstring_gcp);
                         break;
-                    case "transform":
+                    case "GetKubernetes":
                         //command fot testing purposes
-                        //{"command":"transform"}
-                        JSONArray outnodes_openshift1 = OpenShift.GetContainersOpenShift("car");
-                        //String outstring = transformer_test.Transform(outstring_openshift1);
-                        String outstring2 = outnodes_openshift1.toString();
-                        ProxyService.sendMessage("server", sender, outstring2);
+                        //{"command":"GetKubernetes","context":""}
+                        String context_kubernetes = jsoncommand.get("context").asText();
+                        try {
+                            //JSONArray xs = Kubernetesp.GetPods(context_kubernetes);
+                            //System.out.println(xs.toString(1));
+                            String outstring_k8s = prepareMessage(Kubernetesp.GetPods(context_kubernetes));
+                            ProxyService.sendMessage("server", sender, outstring_k8s);
+                        } catch (ApiException e) {
+                            e.printStackTrace();
+                        }
+
                         break;
                     default:
                         System.out.println("unknown command");

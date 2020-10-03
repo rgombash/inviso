@@ -113,6 +113,12 @@
             <artifactId>json-utils</artifactId>
             <version>${project.latest.jolt.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.kubernetes</groupId>
+            <artifactId>client-java</artifactId>
+            <version>8.0.2</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 </project>
