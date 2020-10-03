@@ -8,7 +8,7 @@ Expanding perception and visibility of the complex distributed computing systems
 
 ### What does it do currently ?
 
-Gets list of pods from OpenShift cluster or Google Cloud compute nodes and displays it in 3d space with some meta info embedded in visual representation.
+Gets list of pods from Kubernetes, OpenShift cluster or Google Cloud compute nodes and displays it in 3d space with some meta info embedded in visual representation.
 
 ### Architecture
 
