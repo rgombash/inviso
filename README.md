@@ -19,7 +19,7 @@ client/server communication is done via simple JSON asynchronously.
 Currently there are plugins for getting node or pod list from
 * OpenShift OKD v3.11 with API v1 (plugin : OpenShift.java) 
 * Google Cloud compute nodes (plugin : GoogleCloudPlatform.java)  
-* Kubernetes (plugin : Kubernetes.java, notes: tested only with GKE)
+* Kubernetes (plugin : Kubernetes.java, note: tested only with GKE)
 
 Adding more plugins for different data sources (eg.: public cloud providers) should be relatively easy following the pattern in existing plugins.
 
