@@ -61,6 +61,7 @@ Or use your preferred IDE to set up runtime environment variable.
 ##### Kubernetes
 
 For plugin to work you need to have configured kubectl on machine where you will run Inviso ProxyService, or at least config file with at least one context. On Linux usually in ~/.kube/config
+
 Plugin was only tested on GKE. 
 
 ### Visualisation Clients
@@ -111,7 +112,7 @@ If running locally you should go to http://localhost:4567 for index page
 ### TODOs
 * add ldap auth to http (some basic auth is already there already but it is disabled, had problems with .js loading on FireFox)
 * enable https and wss
-* add more data sources (e.g.: prometheus, kubernetes, GCP, ...)
+* add more data sources (e.g.: prometheus for fetching pod metrics)
 * test subscription model (client subscribes to periodic / streaming updates)
 
 ### Final notes
