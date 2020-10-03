@@ -26,7 +26,7 @@ Adding more plugins for different data sources (eg.: public cloud providers) sho
 ### Proxy Service
 
 Proxy Service is intended to provide simple and universal websocket interface for various data sources.
-It is written in Java and Spark framework. Currently has only OpenShift and GCP Compute data source (plugin).
+It is written in Java and Spark framework. Currently has Kubernetes, OpenShift and GCP Compute data sources (plugins).
 Apart from websocket endpoint service also has http endpoint for static content. 
 By default service runs on port 4567 (both http and ws)
 
