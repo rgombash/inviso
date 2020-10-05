@@ -1,6 +1,9 @@
 //gui
 var FizzyText = function() {
+	this.aimingAt = "";
+	this.aimingAtNamesapce = "";
 	this.name = "";
+	this.namespace = "";
 	this.project = "";
 	this.uid = "";
 	this.phase = "";
@@ -12,7 +15,10 @@ var FizzyText = function() {
 
 var guitext = new FizzyText();
 var gui = new dat.GUI({width: 600,});
+gui.add(guitext, 'aimingAt');
+gui.add(guitext, 'aimingAtNamesapce');
 gui.add(guitext, 'name');
+gui.add(guitext, 'namespace');
 gui.add(guitext, 'project');
 gui.add(guitext, 'uid');
 gui.add(guitext, 'phase');
@@ -20,17 +26,10 @@ gui.add(guitext, 'nodeType');
 gui.add(guitext, 'serviceProvider');
 gui.add(guitext, 'fog');
 
-//guitext.nodeType = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.nodeType;
-//guitext.serviceProvider = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider;
-
-
-//guitext.resourceVersion = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.metadata.resourceVersion;
-//guitext.creationTimestamp = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.metadata.creationTimestamp;
-
 var f1 = gui.addFolder('more');
 f1.add(guitext, 'fulljson');
 //gui end
-    		
+   		
 
 //initialy hide loader
 HideShowLoader(false);
@@ -395,6 +394,9 @@ function init() {
 	ServerGroup.name = "ServersGroup";
 
 	websocket.onopen = function() {
+		//init keepalive
+		keepAlive();
+
 		//initial request to get server list
 		websocket.send(command);
 		
@@ -632,7 +634,20 @@ function animate() {
 			hostname = cam_intersections[ 0 ].object.userData['node']['name'];
 			//console.log(cam_intersections[ 0 ].object.position)
 			//console.log(host);
-			document.getElementById("hostname").innerHTML = hostname + " [" + role + "]";
+			
+			//get namespace if provider k8s
+			namespace = "none";
+			if(cam_intersections[ 0 ].object.userData['node']['serviceProvider'] = "Kubernetes")
+			{
+				namespace = cam_intersections[ 0 ].object.userData['node']['payload']['metadata']['namespace'];				
+			}
+			
+			guitext.aimingAt = hostname;
+			guitext.aimingAtNamesapce = namespace;
+			gui.__controllers[0].updateDisplay();
+			gui.__controllers[1].updateDisplay();
+			
+			//document.getElementById("hostname").innerHTML = hostname + " [" + role + "]";
 		}
 		
 		velocity.x -= velocity.x * 10.0 * delta;
@@ -835,11 +850,17 @@ function selectbox(selectcubemesh){
 		guitext.nodeType = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.nodeType;
 		guitext.serviceProvider = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider;
 
+		//if provider k8s get namespace
+		if(scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider = "Kubernetes")
+		{
+			guitext.namespace = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.payload.metadata.namespace;			
+		}
+			
 		console.log(scene.getObjectByName("ServersGroup").userData.intresection.userData.node);
 
 		//update gui after changes
 		for (var i in gui.__controllers) 
-		{
+		{			
 			gui.__controllers[i].updateDisplay();
 		};			
 			  	
@@ -852,4 +873,12 @@ function selectbox(selectcubemesh){
 
 		selectcubemesh.visible = true;
 	};
+}
+
+function keepAlive() {
+    var timeout = 60000;
+    if (websocket.readyState == websocket.OPEN) {
+        websocket.send('{"command":"keepalive"}');
+    }
+    timerId = setTimeout(keepAlive, timeout);
 }
