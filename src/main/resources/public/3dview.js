@@ -29,7 +29,6 @@ gui.add(guitext, 'fog');
 var f1 = gui.addFolder('more');
 f1.add(guitext, 'fulljson');
 //gui end
-   		
 
 //initialy hide loader
 HideShowLoader(false);
@@ -37,14 +36,9 @@ HideShowLoader(false);
 var camera, scene, renderer;
 var geometry, material, mesh;
 var controls;
-
-//var objects = [];
-
 var raycaster;
-
 var blocker = document.getElementById( 'blocker' );
 var instructions = document.getElementById( 'instructions' );
-
 
 // pointer lock section 
 // http://www.html5rocks.com/en/tutorials/pointerlock/intro/
