@@ -486,11 +486,11 @@ function init() {
 					//material.color.setHSL( Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
 					//change collor when role or name changes deppending on provider
 					if (provider == "openshift" ){
-						if (arr[i]['project'] != prev_role)
+						if (arr[i]['namespace'] != prev_role)
 						{
 							ar = Math.random();	
 							br = Math.random();
-							prev_role = arr[i]['project']
+							prev_role = arr[i]['namespace']
 						}
 					}else if (provider == "gcp" | provider == "k8s"){
 						if (arr[i]['name'].substring(0, 3) != prev_name.substring(0, 3))
@@ -552,11 +552,11 @@ function init() {
 
 //function for sorting by role
 function compareRoleSort(a, b) {
-    if (a['project'] === b['project']) {
+    if (a['namespace'] === b['namespace']) {
         return 0;
     }
     else {
-        return (a['project'] < b['project']) ? -1 : 1;
+        return (a['namespace'] < b['namespace']) ? -1 : 1;
     }
 }	
 

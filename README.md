@@ -4,46 +4,46 @@
 
 ### Idea, Vision
 
-Expanding perception and visibility of the complex distributed computing systems through spatial visualisation
+Expanding perception and visibility of the complex distributed computing systems through spatial visualization.
 
 ### What does it do currently ?
 
-Gets list of pods from Kubernetes, OpenShift cluster or Google Cloud compute nodes and displays it in 3d space with some meta info embedded in visual representation.
+Gets the list of pods from Kubernetes, OpenShift cluster, or Google Cloud compute nodes and displays it in 3d space with some meta info embedded in visual representation.
 
 ### Architecture
 
 [3d/2d client(s)] <--websocket--> [proxy service] <--http(s), kafka, ...---> [data source(s)]
 
-client/server communication is done via simple JSON asynchronously.
+Client/server communication is done via simple JSON asynchronously.
 
-Currently there are plugins for getting node or pod list from
-* OpenShift OKD v3.11 with API v1 (plugin : OpenShift.java) 
-* Google Cloud compute nodes (plugin : GoogleCloudPlatform.java)  
-* Kubernetes (plugin : Kubernetes.java, note: tested only with GKE)
+Currently, there are plugins for getting node or pod list from
+* OpenShift OKD v3.11 with API v1 (plugin: OpenShift.java) 
+* Google Cloud compute nodes (plugin: GoogleCloudPlatform.java)  
+* Kubernetes (plugin: Kubernetes.java, note: tested only with GKE)
 
-Adding more plugins for different data sources (eg.: public cloud providers) should be relatively easy following the pattern in existing plugins.
+Adding more plugins for different data sources (e.g.: public cloud providers) should be relatively easy following the existing plugins pattern.
 
 ### Proxy Service
 
-Proxy Service is intended to provide simple and universal websocket interface for various data sources.
-It is written in Java and Spark framework. Currently has Kubernetes, OpenShift and GCP Compute data sources (plugins).
-Apart from websocket endpoint service also has http endpoint for static content. 
-By default service runs on port 4567 (both http and ws)
+Proxy Service is intended to provide a universal and straightforward WebSocket interface for various data sources.
+It is written in Java and Spark framework. Currently has Kubernetes, OpenShift, and GCP Compute data sources (plugins).
+Apart from the WebSocket endpoint service also has an HTTP endpoint for static content. 
+By default, the service runs on port 4567 (both HTTP and WS)
 
 #### Proxy Service plugins
 
 ##### OpenShift Plugin
 
-Gets and filters pods from OpenShift API. Plugin was tested with OKD v3.11 with API v1
+Gets and filters pods from OpenShift API. The plugin was tested with OKD v3.11 with API v1.
 
 Currently only works with token auth. 
-To get your api key use oc tool : 
+To get your API key, use oc tool: 
 
 `oc login -u your_username https://url_to_your_openshift.com:8443`
 
 `oc whoami -t` 
 
-update config.properties accordingly
+Update config.properties accordingly.
 
 ##### Google Cloud Compute Plugin
 
@@ -60,9 +60,7 @@ Or use your preferred IDE to set up runtime environment variable.
 
 ##### Kubernetes
 
-For plugin to work you need to have configured kubectl on machine where you will run Inviso ProxyService, or at least config file with at least one context. On Linux usually in ~/.kube/config
-
-Plugin was only tested on GKE. 
+For the plugin to work, you need to have configured kubectl on the machine where Inviso ProxyService will run, or config file with at least one context. On Linux, usually in ~/.kube/config
 
 ### Visualisation Clients
 
@@ -73,8 +71,8 @@ Service serves this content on http://localhost:4567 (if you are running the ser
 
 Technology : html, .js, three.js (WebGL)
 
-3D representation of nodes. Each box represents one node/container/vm where position represent state (higher = online / lower = offline)
-Colors represent different roles. Aiming and clicking on specific box shows basic info in right window
+3D representation of nodes. Each box represents one node/container/vm where position represents state (higher = online / lower = offline)
+Colors represent different roles. Aiming and clicking on a specific box shows basic info in the properties box.
 
 If run locally you can access it on : http://localhot:4567/3dview.html
 
@@ -110,11 +108,11 @@ Copy dist.config.properties to config.properties and update authentication and c
 If running locally you should go to http://localhost:4567 for index page
 
 ### TODOs
-* add ldap auth to http (some basic auth is already there already but it is disabled, had problems with .js loading on FireFox)
-* enable https and wss
-* add more data sources (e.g.: prometheus for fetching pod metrics)
-* test subscription model (client subscribes to periodic / streaming updates)
+* Add LDAP auth to HTTP (some basic auth is already there, but it is disabled, had problems with .js loading on Firefox)
+* Enable HTTPS and WSS
+* Add more elements of the clusters, e.g., ingest controllers, storages, etc. 
+* Test subscription model (client subscribes to periodic / streaming updates)
 
 ### Final notes
-This a hobby project that I am playing with sporadically for few years now. Initial concept was written in python and panda3d engine later rewritten to Java and Three.js engine.
-Code was prototyped fast and most of the time dirty (also this is my first Java service), so do not expect high quality code.
+This is a hobby project that I am playing with sporadically for a few years now. The initial concept was written in Python and the Panda3d engine and was later rewritten to Java and Three.js engine.
+The code was prototyped fast and dirty (also, my first Java service), so do not expect high-quality code.

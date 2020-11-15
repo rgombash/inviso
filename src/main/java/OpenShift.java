@@ -93,61 +93,33 @@ public class OpenShift {
                     boolean b = m.find();
                     if(b){
                         //Nodes.put(new JSONObject(node.get("items").get(i).get("metadata").toString()));
-                        Nodes.put(new JSONObject(node.get("items").get(i).toString()));
+
+                        Transformer tr = new Transformer();
+                        tr.uid=node.get("items").get(i).get("metadata").get("uid").toString();
+                        //Node.getJSONObject("metadata").get("uid").toString());
+                        tr.name=node.get("items").get(i).get("metadata").get("name").asText();
+                        tr.state=node.get("items").get(i).get("status").get("phase").toString().toLowerCase();
+                        // Node.getJSONObject("status").get("phase").toString().toLowerCase()
+                        tr.type="container";
+                        tr.serviceProvider="openshift_v3";
+                        //Node.getJSONObject("metadata").get("namespace").toString()
+                        tr.namespace=node.get("items").get(i).get("metadata").get("namespace").asText();;
+
+                        Nodes.put(tr.Transform(new JSONObject(node.get("items").get(i).toString())));
+
+                        //Nodes.put(new JSONObject(node.get("items").get(i).toString()));
                         count++;
                     }
                 }
             }
 
             System.out.println("OpenShift: Pods found: " + count);
-            return Transform(Nodes);
+            //return Transform(Nodes);
+            return Nodes;
 
         } catch (IOException e) {
             System.out.println("Error parsing OpenShift output!");
             return null;
         }
-    }
-
-    /** Transform node list to common schema
-    *
-    *  serviceProvider
-    *  serviceType
-    *  project
-    *  name - node name(pod,vm,..)
-    *  fqdn - fqdn of the node
-    *  ip - ip address
-    *  uid - unique identifier
-    *  state - node state
-    *  payload - raw node json data from service provider
-    *  creationTimestamp
-    *
-    *  @return JSONArray of all packed in common schema nodes
-    */
-    public static JSONArray Transform(JSONArray Nodes){
-        JSONArray Nodes_prepared = new JSONArray();
-
-        long unixTime = Instant.now().getEpochSecond();
-
-        for (int i = 0, size = Nodes.length(); i < size; i++)
-        {
-            JSONObject Node_prepared = new JSONObject();
-            JSONObject Node = Nodes.getJSONObject(i);
-
-            //basic provider and data fetch info
-            Node_prepared.put("serviceProvider", "openshift_v3");
-            Node_prepared.put("NodeType", "container");
-            Node_prepared.put("dataFetchTimestamp",  Long.toString(unixTime));
-            //basic node data extracted from raw json. Consider moving this logic completely to frontend plugins
-            Node_prepared.put("project", Node.getJSONObject("metadata").get("namespace").toString());
-            Node_prepared.put("name", Node.getJSONObject("metadata").get("name").toString());
-            Node_prepared.put("uid", Node.getJSONObject("metadata").get("uid").toString());
-            Node_prepared.put("state", Node.getJSONObject("status").get("phase").toString().toLowerCase());
-            // full raw node json
-            Node_prepared.put("payload", Node);
-
-            Nodes_prepared.put(Node_prepared);
-
-        }
-        return Nodes_prepared;
     }
 }

@@ -88,53 +88,25 @@ public class GoogleCloudPlatform {
         } else {
             for (Instance instance : list.getItems()) {
                 //System.out.println(instance.toPrettyString());
-                Nodes.put(new JSONObject(instance));
+
+                Transformer tr = new Transformer();
+                tr.uid=instance.get("id").toString();
+                tr.name=instance.get("name").toString();
+                tr.state=instance.get("status").toString().toLowerCase();
+                tr.type="compute";
+                tr.serviceProvider="GCP_api_v1";
+                tr.project_id=project_id;
+
+
+                Nodes.put(tr.Transform(new JSONObject(instance)));
+
+                //Nodes.put(new JSONObject(instance));
                 ++count;
             }
 
             System.out.println("GCP: Instances found: " + count);
-            return Transform(Nodes, project_id);
+            //return Transform(Nodes, project_id);
+            return Nodes;
         }
-    }
-    // [END list_instances]
-    /** Transform node list to common schema
-     *
-     *  serviceProvider
-     *  serviceType
-     *  project
-     *  name - node name(pod,vm,..)
-     *  uid - unique identifier
-     *  state - node state
-     *  payload - raw node json data from service provider
-     *  dataFetchTimestamp
-     *
-     *  @return JSONArray of all packed in common schema nodes
-     */
-    public static JSONArray Transform(JSONArray Nodes, String project_id){
-        JSONArray Nodes_prepared = new JSONArray();
-
-        long unixTime = Instant.now().getEpochSecond();
-
-        for (int i = 0, size = Nodes.length(); i < size; i++)
-        {
-            JSONObject Node = Nodes.getJSONObject(i);
-            JSONObject Node_prepared = new JSONObject();
-
-            //basic provider and data fetch info
-            Node_prepared.put("serviceProvider", "GCP_api_v1");
-            Node_prepared.put("nodeType", "compute");
-            Node_prepared.put("dataFetchTimestamp",  Long.toString(unixTime));
-            //basic node data extracted from raw json. Consider moving this logic completely to frontend plugins
-            Node_prepared.put("project", project_id);
-            Node_prepared.put("name", Node.get("name").toString());
-            Node_prepared.put("uid", Node.get("id").toString());
-            Node_prepared.put("state", Node.get("status").toString().toLowerCase());
-            // full raw node json
-            Node_prepared.put("payload", Node);
-
-            Nodes_prepared.put(Node_prepared);
-
-        }
-        return Nodes_prepared;
     }
 }

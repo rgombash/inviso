@@ -43,8 +43,6 @@ public class Kubernetesp {
         // invokes the CoreV1Api client
         V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
 
-        //return Transform(V1PodList);
-
         for (V1Pod item : list.getItems()) {
 
             //System.out.println(item.toString());
@@ -65,67 +63,24 @@ public class Kubernetesp {
             //Node_prepared.put("apiversion", new JSONObject(jsonApiVersion));
 
             //System.out.println(Node_prepared.toString(2));
-            Nodes.put(Node_prepared);
 
-        }
-
-        return Transform(Nodes, "none");
-    }
-
-    /** Transform node list to common schema
-     *
-     *  serviceProvider
-     *  serviceType
-     *  project
-     *  name - node name(pod,vm,..)
-     *  uid - unique identifier
-     *  state - node state
-     *  payload - raw node json data from service provider
-     *  dataFetchTimestamp
-     *
-     *  @return JSONArray of all packed in common schema nodes
-     */
-    public static JSONArray Transform(JSONArray Nodes, String project_id){
-        JSONArray Nodes_prepared = new JSONArray();
-
-        long unixTime = Instant.now().getEpochSecond();
-
-        for (int i = 0, size = Nodes.length(); i < size; i++)
-        {
-            JSONObject Node = Nodes.getJSONObject(i);
-            JSONObject Node_prepared = new JSONObject();
-
-            //basic provider and data fetch info
-            Node_prepared.put("serviceProvider", "Kubernetes");
-            Node_prepared.put("nodeType", "pod");
-            Node_prepared.put("dataFetchTimestamp",  Long.toString(unixTime));
-            //basic node data extracted from raw json. Consider moving this logic completely to frontend plugins
-            Node_prepared.put("project", project_id);
-
-            //nodeName
-            if (Node.getJSONObject("specs").has("nodeName"))
-                Node_prepared.put("name", Node.getJSONObject("specs").get("nodeName").toString());
-
+            Transformer tr = new Transformer();
+            tr.uid=Node_prepared.getJSONObject("metadata").get("uid").toString().toLowerCase();
             //pod name
-            if (Node.getJSONObject("metadata").has("name"))
-                Node_prepared.put("name", Node.getJSONObject("metadata").get("name").toString());
+            if (Node_prepared.getJSONObject("metadata").has("name"))
+                tr.name=Node_prepared.getJSONObject("metadata").get("name").toString();
+            if (Node_prepared.getJSONObject("metadata").has("namespace"))
+                tr.namespace = Node_prepared.getJSONObject("metadata").get("namespace").toString();
+            tr.state=Node_prepared.getJSONObject("status").get("phase").toString().toLowerCase();
+            tr.type="pod";
+            tr.serviceProvider="Kubernetes";
 
-            //pod namespace
-            if (Node.getJSONObject("metadata").has("namespace"))
-                Node_prepared.put("namespace", Node.getJSONObject("metadata").get("namespace").toString());
-
-            //System.out.println(Node.getJSONObject("specs"));
-            Node_prepared.put("uid", Node.getJSONObject("metadata").get("uid").toString().toLowerCase());
-            Node_prepared.put("state", Node.getJSONObject("status").get("phase").toString().toLowerCase());
-
-            // raw node metadata json to payload
-            Node_prepared.put("payload", Node);
-            //Node_prepared.put("payload", "{none:none}");
-
-            Nodes_prepared.put(Node_prepared);
+            Nodes.put(tr.Transform(Node_prepared));
+            //Nodes.put(Node_prepared);
 
         }
-        return Nodes_prepared;
+        return Nodes;
+        //return Transform(Nodes, "none");
     }
 
     //joda datetime serializer/deserializer
