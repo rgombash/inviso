@@ -24,7 +24,53 @@
 				height: 100%;
 
 				background-color: rgba(0,0,0,0.5);
+			}
 
+			#console{
+				background:#000;
+				height:300px;
+				width:100%;
+				top:0px;
+				left:0px;
+				padding:0px;				    
+				position:fixed;
+				z-index:999;
+				display:none;
+				color:#fff;
+				text-align:left;
+				opacity: 0.6;
+			}
+
+			#window{
+			    width:98%;
+			    margin:5px auto 5px auto;
+			    background:#999;
+			    height:250px;
+			    top:0px;
+				left:0px;
+			    padding:0px;
+			    color:#000;
+			    font-size:12pt;
+			    font-family:courier;
+			    overflow:scroll;
+			}
+
+			#input_container{
+			    width:98%;
+			    margin:5px auto 5px auto;
+			    background:#000;
+			    top:0px;
+				left:0px;
+			    padding:0px;			    			    			    
+			}
+
+			input[type=text] {
+				width: 100%;
+				padding: 5px;
+				margin: 0px;
+				box-sizing: border-box;
+				border: 1px solid black;
+				border-radius: 5px;				
 			}
 
 			#instructions {
@@ -89,13 +135,18 @@
 		<script src="threejs/controls/PointerLockControls.js"></script>
 		<script type="text/javascript" src="threejs/lib/dat-gui/dat.gui.js"></script>
 
+		<div id="console">
+		    <div id="window">		 		              
+		    </div>
+		    <div id="input_container"><input id="console_input" type="text"/></div>
+		</div>
+
 
 		<div id="blocker">
-
 			<div id="instructions">
 				<span style="font-size:40px">Click to enter</span>
 				<br />
-				(W, A, S, D = Move, MOUSE = Look around, MOUSE SCROLL = zoom in/out, MOUSE CLICK = select node)
+				(W, A, S, D = Move, MOUSE = Look around, MOUSE SCROLL = zoom in/out, MOUSE CLICK = select node, "~" = open console)
 			</div>
 
 		</div>

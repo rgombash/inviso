@@ -108,12 +108,9 @@ if ( havePointerLock ) {
 }
 // end - pointer locks section 
 
-//scale & grid denity
+//scale & grid density
 var scale = 10;
 var grid_density = 1.5;
-
-init();
-animate();
 
 var controlsEnabled = false;
 
@@ -134,6 +131,12 @@ var prevTime = performance.now();
 var velocity = new THREE.Vector3();
 
 var mouseWheelDelata = 0;
+
+var console_visible=false;
+document.getElementById("console").style.display = "none";
+
+init();
+animate();
 
 function init() {
 
@@ -171,50 +174,68 @@ function init() {
 
 		//console.log(event.keyCode);
 		
-		switch ( event.keyCode ) {
+		if(console_visible){
+			switch ( event.keyCode ) {				
+				case 192: // key "`"					
+					document.getElementById("console_input").blur();						
+					break;
+				case 13: //enter
+					console_command_parse(document.getElementById("console_input").value);
+					break;
+				case 9: //tab
+					break;
+			}
+		}else{
+			switch ( event.keyCode ) {
 
-			case 38: // up
-			case 87: // w
-				moveForward = true;
-				break;
+				case 38: // up
+				case 87: // w
+					moveForward = true;
+					break;
 
-			case 37: // left
-			case 65: // a
-				moveLeft = true; break;
+				case 37: // left
+				case 65: // a
+					moveLeft = true; break;
 
-			case 40: // down
-			case 83: // s
-				moveBackward = true;
-				break;
+				case 40: // down
+				case 83: // s
+					moveBackward = true;
+					break;
 
-			case 39: // right
-			case 68: // d
-				moveRight = true;
-				break;
+				case 39: // right
+				case 68: // d
+					moveRight = true;
+					break;
 
-			case 32: // space
-				selectbox(selectcubemesh);
-				break;
+				case 32: // space
+					selectbox(selectcubemesh);
+					break;
 
-			case 49: //  key "1"
-				Key1 = true;
-				break;
+				case 49: //  key "1"
+					Key1 = true;
+					break;
 
-			case 50: //  key "2"
-				Key2 = true;
-				break;
+				case 50: //  key "2"
+					Key2 = true;
+					break;
 
-			case 51: //  key "3"
-				Key3 = true;
-				break;
+				case 51: //  key "3"
+					Key3 = true;
+					break;
 
-			case 52: //  key "4"
-				Key4 = true;
-				break;
+				case 52: //  key "4"
+					Key4 = true;
+					break;
 
-			case 53: //  key "5"
-				Key5 = true;
-				break;
+				case 53: //  key "5"
+					Key5 = true;
+					break;
+						
+				case 192: // key "`"
+					//if (console_visible == false) ConsoleCtl();
+					break;
+			}
+
 		}
 
 	};
@@ -242,7 +263,10 @@ function init() {
 			case 68: // d
 				moveRight = false;
 				break;
-
+			
+			case 192: // key "`"
+				ConsoleCtl();
+			break;
 		}
 
 	};
@@ -291,7 +315,6 @@ function init() {
 	scene.add( mesh );
 	// floor end
 
-
 	// cube objects
 	// scale: defines cube size. by decresing size it increses number of viewvable objects, thus rendering distance (more objects fit into same scene).Also infulences placement of cubes (grid density)	
 
@@ -317,12 +340,12 @@ function init() {
 	var select_geometry = new THREE.CubeGeometry(12,12,12);
 
 	var select_cubeMaterials = [ 
-	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.8, side: THREE.DoubleSide}),
-	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.8, side: THREE.DoubleSide}), 
-	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.8, side: THREE.DoubleSide}),
-	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.8, side: THREE.DoubleSide}), 
-	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.8, side: THREE.DoubleSide}), 
-	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.8, side: THREE.DoubleSide})];
+	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.6, side: THREE.DoubleSide}),
+	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.6, side: THREE.DoubleSide}), 
+	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.6, side: THREE.DoubleSide}),
+	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.6, side: THREE.DoubleSide}), 
+	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.6, side: THREE.DoubleSide}), 
+	new THREE.MeshBasicMaterial({color:0xf9f754, transparent:true, opacity:0.6, side: THREE.DoubleSide})];
 
 	var select_cubeMaterial = new THREE.MeshFaceMaterial(select_cubeMaterials);
 	var selectcubemesh = new THREE.Mesh(select_geometry, select_cubeMaterial);
@@ -334,6 +357,7 @@ function init() {
 	selectcubemesh.position.z =10 ;
 
 	selectcubemesh.visible = false;
+	//end selectcube 
 
 	//***********************				
 	// get data from proxy  				
@@ -377,6 +401,8 @@ function init() {
 		command = '{"command":"GetKubernetes","context":"' + context + '"}';
 	else 
 		command = '{"command":"ping"}';
+
+	console_append("request: " + command);
 
 	websocket = new WebSocket(wsUri);
 
@@ -425,16 +451,6 @@ function init() {
 					arr.sort(compareNameSort);
 	  			
 
-				//min square side to fit all objects
-				q = Math.ceil(Math.sqrt(object_count))
-
-				//var arr = eval(rawdata);    
-				//alert(typeof evt.data)
-				y=1;
-				x=1;
-
-				grid_density = 1.5;
-
 				prev_role = '';
 				prev_name = '';
 
@@ -442,22 +458,7 @@ function init() {
 
 			 	//draw cubes
 			  	for (var i = 0, len = arr.length; i < len; i++) {
-				    //console.log(arr[i]['fqdn']);
-				    //console.log(arr[i]['state']);
-				    //console.log(arr[i])						   			
-
-					// grid placement coordiantes 
-					if (x>q){ 
-						x=0;
-						if (y>q) y=1;
-						y++;
-					}
-					x++;
-
- 					state = 2
- 					state = 1
-					if (arr[i]['state'] == 'running') state = 2;
-
+		
 					//cubes 	
 					//material = new THREE.MeshPhongMaterial( { specular: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors } );
 					material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: THREE.VertexColors } );
@@ -465,18 +466,8 @@ function init() {
 
 					//add node data to current mesh
 					mesh.userData.node = arr[i]
-
-					//console.log(arr[i])
-
-					mesh.position.x = x * scale * grid_density;							
-
-					//height
-					//mesh.position.y = Math.floor( Math.random() * 20 ) * 20 + 10;
-					mesh.position.y = state * scale * grid_density;
-
-					mesh.position.z = y * scale * grid_density;
-										
-					//change mesh name to fqdn
+											
+					//change mesh name to node name
 					console.log(arr[i]['name']);
 					mesh.name = arr[i]['name'];
 					
@@ -503,8 +494,12 @@ function init() {
 
 					material.color.setHSL(ar * 0.8 + 0.5, 0.75, br * 0.25 + 0.75 );
 
-				//for-to end for cube draw
-			  	}						  	
+				//end cube draw
+			  	}
+
+			  	//cubes placement
+			  	arrange_flat(scene.getObjectByName("ServersGroup"));
+
 			//end getservers section
 			}
 			
@@ -532,7 +527,6 @@ function init() {
 		
 			//close websocket
 			//websocket.close();
-
 		}		
 	}
 
@@ -758,7 +752,6 @@ function animate() {
 			Key4 = false;
 		}
 
-
 		// on keypress do stuff
 		if (Key5){
 			//test artefacts from graphite fetch 
@@ -875,4 +868,149 @@ function keepAlive() {
         websocket.send('{"command":"keepalive"}');
     }
     timerId = setTimeout(keepAlive, timeout);
+}
+
+function ConsoleCtl() {
+  var x = document.getElementById("console");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+    console_visible=true;
+    document.getElementById("console_input").focus(); 
+  } else {
+    x.style.display = "none";
+    console_visible=false;
+    window.focus();
+  }
+} 
+
+function console_command_parse(input)
+{
+	cmd = input.split(" ")
+	switch(cmd[0]){
+		case "test":
+			console_append(input);
+			break;
+		case "clear":
+			document.getElementById("window").innerHTML = "";
+			break;
+		case "list":
+			switch(cmd[1]){
+				case "nodes":
+					/*for (var i = 0, len = arr.length; i < len; i++) {
+						console_append(arr[i]['name']);
+					}*/
+				scene.getObjectByName("ServersGroup").traverse( function ( obj ) {
+					if(obj.name!="ServersGroup")
+					{
+						console_append(obj.userData.node.serviceProvider + " | " +  obj.userData.node.state + " | " + obj.name + " | " + obj.userData.node.uid);						
+					}
+				} );
+				break;
+			}
+		case "arrange":			
+			switch(cmd[1]){
+				case "flat":
+					arrange_flat(scene.getObjectByName("ServersGroup"));
+				break;
+				case "columns":
+					arrange_columns(scene.getObjectByName("ServersGroup"));
+				break;
+			}	
+		break;
+		case "help":
+			console_append(`				
+				Options:
+				<br>
+				test [anything] - console echo test<br>
+				list nodes - list all loaded nodes in console<br>
+				arrange [flat|columns] - nodes layout<br>
+				clear - erase content of console<br>
+			`);
+		break;
+		default:
+			console_append(`<br>Unknown command. Type "help" for options<br>`);
+		break;
+	}
+
+	document.getElementById("console_input").value = "";
+}
+
+function arrange_flat(ObjectGroup)
+{
+	var prev_name = "";
+	var x=0;
+	var z=0;
+	var y=0;
+	var state=1;
+	var q=0;
+	
+	//object_count = ObjectGroup.name.length;				 
+	ObjectGroup.traverse( function ( obj ) {
+		q=q+1;
+	});
+
+	console_append("Number of nodes: " + object_count);
+
+	//min square side to fit all objects
+	q = Math.ceil(Math.sqrt(object_count));
+
+
+	ObjectGroup.traverse( function ( obj ) {
+		if(obj.name!="ServersGroup")
+		{	
+			// grid placement coordiantes 
+			if (x>q){ 
+				x=0;
+				if (y>q) y=1;
+				y++;
+			}
+			x++;
+
+			state = 1
+			
+			console.log(obj.userData.node.state);
+			if (obj.userData.node.state == 'running') state = 2;
+
+			obj.position.x = x * scale * grid_density;	//height
+			obj.position.y = state * scale * grid_density;
+			obj.position.z = y * scale * grid_density;
+									
+		}
+	} );
+}
+
+function arrange_columns(ObjectGroup)
+{
+	var prev_name = "";
+	var x=0;
+	var z=0;
+	var y=0;
+
+	ObjectGroup.traverse( function ( obj ) {
+			if(obj.name!="ServersGroup")
+			{
+				//console_append(obj.userData.node.serviceProvider + " | " + obj.name + " | " + obj.userData.node.uid);
+
+				if (obj.name.substring(0, 3) != prev_name.substring(0, 3))
+				{
+					x = x + 1
+					y = 0;
+					prev_name = obj.name;
+				}
+
+				y=y+1;
+				obj.position.x = x * scale * grid_density
+				obj.position.y = y * scale * grid_density //height
+				obj.position.z = z * scale * grid_density
+
+			}
+		} );
+}
+
+function console_append(text)
+{
+	var consoleDiv = document.getElementById("window");
+	consoleDiv.innerHTML += text;
+	consoleDiv.innerHTML += "<br>";
+	consoleDiv.scrollTop = consoleDiv.scrollHeight;
 }
