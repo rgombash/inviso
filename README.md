@@ -60,7 +60,7 @@ Or use your preferred IDE to set up runtime environment variable.
 
 ##### Kubernetes
 
-For the plugin to work, you need to have configured kubectl on the machine where Inviso ProxyService will run, or config file with at least one context. On Linux, usually in ~/.kube/config
+For the plugin to work, you need to have configured kubectl on the machine where Inviso ProxyService will run, or config file with at least one context. On Linux, usually in ~/.kube/config.
 
 ### Visualisation Clients
 
@@ -76,8 +76,9 @@ Colors represent different roles. Aiming and clicking on a specific box shows ba
 
 If run locally you can access it on : http://localhot:4567/3dview.html
 
-* For OpenShift : http://localhost:4567/3dview.html?provider=openshift&search=SOME_SEARCH_STRING. If no search string provided it will list all available pods.
-* For Google Cloud compute : http://localhost:4567/3dview.html?provider=gcp&zone=YOUR-ZONE&project=YOUR-PROJECT
+* OpenShift query string parameters: http://localhost:4567/3dview.html?provider=openshift&search=SOME_SEARCH_STRING. If no search string provided it will list all available pods.
+* Google Cloud Compute query string parameters: http://localhost:4567/3dview.html?provider=gcp&zone=YOUR-ZONE&project=YOUR-PROJECT
+* Kubernets query string paramaters: http://localhost:4567/3dview.html?provider=k8s&context=YOUR-K8S-CONTEXT
 
 For JS visualization three.js example was used as a starting point: https://threejs.org/examples/#misc_controls_pointerlock
 

@@ -101,9 +101,9 @@ public class ProxyService {
     }
 
     //prepare json string data to be sent to client
-    public static String prepareMessage(JSONArray Nodes){
+    public static String prepareMessage(JSONArray Nodes, String response_string){
         JSONObject response  = new JSONObject()
-                .put("response", "getservers")
+                .put("response", response_string)
                 .put("data",  Nodes);
 
         return response.toString();
@@ -130,27 +130,27 @@ public class ProxyService {
                         System.out.println("broadcast from" + sender);
                         ProxyService.broadcastMessage(sender, message);
                         break;
-                    case "OpenshiftGetPods":
+                    case "openshift_get_pods":
                         //{"command":"OpenshiftGetPods","filter":""}
                         String filter_openshift = jsoncommand.get("filter").asText();
-                        String outstring_openshift = prepareMessage(OpenShift.GetContainersOpenShift(filter_openshift));
+                        String outstring_openshift = prepareMessage(OpenShift.GetContainersOpenShift(filter_openshift),"response_openshift_get_pods");
                         ProxyService.sendMessage("server", sender, outstring_openshift);
                         break;
-                    case "GCPGetCompute":
+                    case "gcp_get_compute":
                         //{"command":"GCPGetCompute","project":"","zone":""}
                         String gcp_project = jsoncommand.get("project").asText();
                         String gcp_zone = jsoncommand.get("zone").asText();
-                        String outstring_gcp = prepareMessage(GoogleCloudPlatform.getInstances(gcp_project, gcp_zone ));
+                        String outstring_gcp = prepareMessage(GoogleCloudPlatform.getInstances(gcp_project, gcp_zone ),"response_gcp_get_compute");
                         ProxyService.sendMessage("server", sender, outstring_gcp);
                         break;
-                    case "GetKubernetes":
+                    case "kubernetes_get_pods":
                         //command fot testing purposes
                         //{"command":"GetKubernetes","context":""}
                         String context_kubernetes = jsoncommand.get("context").asText();
                         try {
                             //JSONArray xs = Kubernetesp.GetPods(context_kubernetes);
                             //System.out.println(xs.toString(1));
-                            String outstring_k8s = prepareMessage(Kubernetesp.GetPods(context_kubernetes));
+                            String outstring_k8s = prepareMessage(Kubernetesp.GetPods(context_kubernetes),"response_kubernetes_get_pods");
                             ProxyService.sendMessage("server", sender, outstring_k8s);
                         } catch (ApiException e) {
                             e.printStackTrace();

@@ -365,42 +365,10 @@ function init() {
 	
 	var wsUri = "ws://" + location.hostname + ":" + location.port + "/wsapi";
 	
-	//get the query string
-	querystrig = QueryString();
-	if (querystrig.search)
-		search = querystrig.search;
-	else
-		search = '';
+	querystring = parse_query_string();
 
-	if (querystrig.project)
-		project = querystrig.project;
-	else
-		project = '';
-
-	if (querystrig.zone)
-		zone = querystrig.zone;
-	else
-		zone = '';
-
-	if (querystrig.context)
-		context = querystrig.context;
-	else
-		context = '';
-
-	if (querystrig.provider)
-		provider = querystrig.provider;
-	else
-		provider = '';
-
-	//prepare initial command for server depending on querystring values
-	if (provider == "openshift" )
-		command = '{"command":"OpenshiftGetPods","filter":"' + search + '"}';
-	else if (provider == "gcp" ) 
-		command = '{"command":"GCPGetCompute","project":"'+ project + '","zone":"' + zone + '"}';
-	else if (provider == "k8s" ) 
-		command = '{"command":"GetKubernetes","context":"' + context + '"}';
-	else 
-		command = '{"command":"ping"}';
+	command = querystring['command'];
+	provider = querystring['provider'];
 
 	console_append("request: " + command);
 
@@ -439,7 +407,8 @@ function init() {
 			console.log("server command > " + response_command);
 
 			//check response is received for getservers command
-			if(response_command=="getservers"){
+			if (response_command=="response_openshift_get_pods" || response_command=="response_gcp_get_compute" || response_command=="response_kubernetes_get_pods")
+			{
 
 				arr = full_arr.data;
 				object_count = arr.length					 
@@ -450,7 +419,6 @@ function init() {
 				else if (provider == "gcp" | provider == "k8s") 
 					arr.sort(compareNameSort);
 	  			
-
 				prev_role = '';
 				prev_name = '';
 
@@ -463,16 +431,6 @@ function init() {
 					//material = new THREE.MeshPhongMaterial( { specular: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors } );
 					material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: THREE.VertexColors } );
 					var mesh = new THREE.Mesh( geometry, material );
-
-					//add node data to current mesh
-					mesh.userData.node = arr[i]
-											
-					//change mesh name to node name
-					console.log(arr[i]['name']);
-					mesh.name = arr[i]['name'];
-					
-					//add mesh(server object) to group
-					ServerGroup.add( mesh );
 
 					//material.color.setHSL( Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
 					//change collor when role or name changes deppending on provider
@@ -493,6 +451,16 @@ function init() {
 					}
 
 					material.color.setHSL(ar * 0.8 + 0.5, 0.75, br * 0.25 + 0.75 );
+
+					//add node data to current mesh
+					mesh.userData.node = arr[i]
+											
+					//change mesh name to node name
+					console.log(arr[i]['name']);
+					mesh.name = arr[i]['name'];
+					
+					//add mesh(server object) to group
+					ServerGroup.add( mesh );
 
 				//end cube draw
 			  	}
@@ -625,7 +593,7 @@ function animate() {
 			
 			//get namespace if provider k8s
 			namespace = "none";
-			if(cam_intersections[ 0 ].object.userData['node']['serviceProvider'] = "Kubernetes")
+			if(cam_intersections[ 0 ].object.userData['node']['serviceProvider'] == "Kubernetes")
 			{
 				namespace = cam_intersections[ 0 ].object.userData['node']['payload']['metadata']['namespace'];				
 			}
@@ -838,7 +806,7 @@ function selectbox(selectcubemesh){
 		guitext.serviceProvider = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider;
 
 		//if provider k8s get namespace
-		if(scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider = "Kubernetes")
+		if(scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider == "Kubernetes")
 		{
 			guitext.namespace = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.payload.metadata.namespace;			
 		}
@@ -868,71 +836,6 @@ function keepAlive() {
         websocket.send('{"command":"keepalive"}');
     }
     timerId = setTimeout(keepAlive, timeout);
-}
-
-function ConsoleCtl() {
-  var x = document.getElementById("console");
-  if (x.style.display === "none") {
-    x.style.display = "block";
-    console_visible=true;
-    document.getElementById("console_input").focus(); 
-  } else {
-    x.style.display = "none";
-    console_visible=false;
-    window.focus();
-  }
-} 
-
-function console_command_parse(input)
-{
-	cmd = input.split(" ")
-	switch(cmd[0]){
-		case "test":
-			console_append(input);
-			break;
-		case "clear":
-			document.getElementById("window").innerHTML = "";
-			break;
-		case "list":
-			switch(cmd[1]){
-				case "nodes":
-					/*for (var i = 0, len = arr.length; i < len; i++) {
-						console_append(arr[i]['name']);
-					}*/
-				scene.getObjectByName("ServersGroup").traverse( function ( obj ) {
-					if(obj.name!="ServersGroup")
-					{
-						console_append(obj.userData.node.serviceProvider + " | " +  obj.userData.node.state + " | " + obj.name + " | " + obj.userData.node.uid);						
-					}
-				} );
-				break;
-			}
-		case "arrange":			
-			switch(cmd[1]){
-				case "flat":
-					arrange_flat(scene.getObjectByName("ServersGroup"));
-				break;
-				case "columns":
-					arrange_columns(scene.getObjectByName("ServersGroup"));
-				break;
-			}	
-		break;
-		case "help":
-			console_append(`				
-				Options:
-				<br>
-				test [anything] - console echo test<br>
-				list nodes - list all loaded nodes in console<br>
-				arrange [flat|columns] - nodes layout<br>
-				clear - erase content of console<br>
-			`);
-		break;
-		default:
-			console_append(`<br>Unknown command. Type "help" for options<br>`);
-		break;
-	}
-
-	document.getElementById("console_input").value = "";
 }
 
 function arrange_flat(ObjectGroup)
@@ -987,30 +890,72 @@ function arrange_columns(ObjectGroup)
 	var y=0;
 
 	ObjectGroup.traverse( function ( obj ) {
-			if(obj.name!="ServersGroup")
+		if(obj.name!="ServersGroup")
+		{
+			//console_append(obj.userData.node.serviceProvider + " | " + obj.name + " | " + obj.userData.node.uid);
+
+			if (obj.name.substring(0, 3) != prev_name.substring(0, 3))
 			{
-				//console_append(obj.userData.node.serviceProvider + " | " + obj.name + " | " + obj.userData.node.uid);
-
-				if (obj.name.substring(0, 3) != prev_name.substring(0, 3))
-				{
-					x = x + 1
-					y = 0;
-					prev_name = obj.name;
-				}
-
-				y=y+1;
-				obj.position.x = x * scale * grid_density
-				obj.position.y = y * scale * grid_density //height
-				obj.position.z = z * scale * grid_density
-
+				x = x + 1
+				y = 0;
+				prev_name = obj.name;
 			}
-		} );
+
+			y=y+1;
+			obj.position.x = x * scale * grid_density
+			obj.position.y = y * scale * grid_density //height
+			obj.position.z = z * scale * grid_density
+
+		}
+	} );
 }
 
-function console_append(text)
-{
-	var consoleDiv = document.getElementById("window");
-	consoleDiv.innerHTML += text;
-	consoleDiv.innerHTML += "<br>";
-	consoleDiv.scrollTop = consoleDiv.scrollHeight;
+
+function parse_query_string(){
+	
+	var command = "";
+	var provider = "";
+	var out = [];
+
+	//get the query string
+	querystrig = QueryString();
+	if (querystrig.search)
+		search = querystrig.search;
+	else
+		search = '';
+
+	if (querystrig.project)
+		project = querystrig.project;
+	else
+		project = '';
+
+	if (querystrig.zone)
+		zone = querystrig.zone;
+	else
+		zone = '';
+
+	if (querystrig.context)
+		context = querystrig.context;
+	else
+		context = '';
+
+	if (querystrig.provider)
+		provider = querystrig.provider;
+	else
+		provider = '';
+
+	//prepare initial command for server depending on querystring values
+	if (provider == "openshift" )
+		command = '{"command":"openshift_get_pods","filter":"' + search + '"}';
+	else if (provider == "gcp" ) 
+		command = '{"command":"gcp_get_compute","project":"'+ project + '","zone":"' + zone + '"}';
+	else if (provider == "k8s" ) 
+		command = '{"command":"kubernetes_get_pods","context":"' + context + '"}';
+	else 
+		command = '{"command":"ping"}';
+	
+	out["command"]=command;
+	out["provider"]=provider;
+	
+	return out;
 }
