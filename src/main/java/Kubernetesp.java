@@ -73,7 +73,7 @@ public class Kubernetesp {
                 tr.namespace = Node_prepared.getJSONObject("metadata").get("namespace").toString();
             tr.state=Node_prepared.getJSONObject("status").get("phase").toString().toLowerCase();
             tr.type="pod";
-            tr.serviceProvider="Kubernetes";
+            tr.serviceProvider="kubernetes";
 
             Nodes.put(tr.Transform(Node_prepared));
             //Nodes.put(Node_prepared);

@@ -100,8 +100,8 @@ public class OpenShift {
                         tr.name=node.get("items").get(i).get("metadata").get("name").asText();
                         tr.state=node.get("items").get(i).get("status").get("phase").toString().toLowerCase();
                         // Node.getJSONObject("status").get("phase").toString().toLowerCase()
-                        tr.type="container";
-                        tr.serviceProvider="openshift_v3";
+                        tr.type="pod";
+                        tr.serviceProvider="openshift";
                         //Node.getJSONObject("metadata").get("namespace").toString()
                         tr.namespace=node.get("items").get(i).get("metadata").get("namespace").asText();;
 

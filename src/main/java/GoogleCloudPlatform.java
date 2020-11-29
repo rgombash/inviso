@@ -94,7 +94,7 @@ public class GoogleCloudPlatform {
                 tr.name=instance.get("name").toString();
                 tr.state=instance.get("status").toString().toLowerCase();
                 tr.type="compute";
-                tr.serviceProvider="GCP_api_v1";
+                tr.serviceProvider="gcp";
                 tr.project_id=project_id;
 
 

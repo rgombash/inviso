@@ -593,7 +593,7 @@ function animate() {
 			
 			//get namespace if provider k8s
 			namespace = "none";
-			if(cam_intersections[ 0 ].object.userData['node']['serviceProvider'] == "Kubernetes")
+			if(cam_intersections[ 0 ].object.userData['node']['serviceProvider'] == "kubernetes")
 			{
 				namespace = cam_intersections[ 0 ].object.userData['node']['payload']['metadata']['namespace'];				
 			}
@@ -806,7 +806,7 @@ function selectbox(selectcubemesh){
 		guitext.serviceProvider = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider;
 
 		//if provider k8s get namespace
-		if(scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider == "Kubernetes")
+		if(scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider == "kubernetes")
 		{
 			guitext.namespace = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.payload.metadata.namespace;			
 		}
