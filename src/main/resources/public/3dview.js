@@ -135,6 +135,10 @@ var mouseWheelDelata = 0;
 var console_visible=false;
 document.getElementById("console").style.display = "none";
 
+var environment = [];
+environment['fog'] = false;
+environment['hud'] = false;
+
 init();
 animate();
 
@@ -154,7 +158,7 @@ function init() {
 	camera.add( crosshair );
 
 	scene = new THREE.Scene();
-	//scene.fog = new THREE.Fog( 0xffffff, 0, 950 );
+	if (environment['fog'] == true ) scene.fog = new THREE.Fog( 0xffffff, 0, 950 );
 	
 	var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
 	light.position.set( 0.5, 1, 0.75 );
@@ -902,9 +906,9 @@ function arrange_columns(ObjectGroup)
 			}
 
 			y=y+1;
-			obj.position.x = x * scale * grid_density
-			obj.position.y = y * scale * grid_density //height
-			obj.position.z = z * scale * grid_density
+			obj.position.x = x * scale * grid_density;
+			obj.position.y = y * scale * grid_density; //height
+			obj.position.z = z * scale * grid_density;
 
 		}
 	} );
