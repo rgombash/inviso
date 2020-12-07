@@ -607,7 +607,9 @@ function animate() {
 			gui.__controllers[0].updateDisplay();
 			gui.__controllers[1].updateDisplay();
 			
-			//document.getElementById("hostname").innerHTML = hostname + " [" + role + "]";
+			if(document.getElementById("hud").style.display != "none") document.getElementById("hud").innerHTML = "[" + hostname + "]<br>[" + namespace + "]";
+		} else {
+			if(document.getElementById("hud").style.display != "none" && document.getElementById("hud").innerHTML != "") document.getElementById("hud").innerHTML = "";
 		}
 		
 		velocity.x -= velocity.x * 10.0 * delta;

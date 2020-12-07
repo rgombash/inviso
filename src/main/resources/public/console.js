@@ -1,4 +1,4 @@
-// console related functions
+// console and hud related functions
 
 // command line parser 
 function console_command_parse(input)
@@ -49,6 +49,7 @@ function console_command_parse(input)
 				set - show environment variables<br>
 				set [variable] - show value of the environment variable<br>
 				set [varibale] [value] - set environment variable to the value<br>
+				hud [on|off] - show hud
 			`);
 		break;
 		case "set":
@@ -68,6 +69,19 @@ function console_command_parse(input)
 			if(arg_no == 3){
 				environment[cmd[1]] = ConvertString(cmd[2]);
 				console_append(cmd[1] + "=" + cmd[2]);
+			}
+		break;
+		case "hud":
+			switch(cmd[1]){
+				case "on":
+					VisibilitySwitch("hud", true);
+				break;
+				case "off":
+					VisibilitySwitch("hud", false);
+				break;
+				default:
+					console_append(`Hud options: on|off`);
+				break;
 			}
 		break;
 		default:
@@ -92,6 +106,16 @@ function ConsoleCtl() {
     window.focus();
   }
 } 
+
+function VisibilitySwitch(element_id, state) {
+  var x = document.getElementById(element_id);
+  if (state === true) {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+    window.focus();
+  }
+}
 
 function console_append(text)
 {

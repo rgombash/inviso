@@ -26,6 +26,19 @@
 				background-color: rgba(0,0,0,0.5);
 			}
 
+			#hud{
+			    position: absolute;
+			    top: 50%;
+			    left: 50%;
+			    margin-top: 50px;
+			    transform: translate(-50%, -50%);
+			    background:#000;
+			    color:#878787;
+			    opacity: 0.6;
+				text-align: center;
+				display:none;
+			}
+
 			#console{
 				background:#000;
 				height:300px;
@@ -131,7 +144,7 @@
 		</style>
 	</head>
 	<body>
-		<script src="threejs/three.js"></script>
+		<script src="threejs/r123/three.min.js"></script>
 		<script src="threejs/controls/PointerLockControls.js"></script>
 		<script type="text/javascript" src="threejs/lib/dat-gui/dat.gui.js"></script>
 
@@ -153,7 +166,7 @@
 
 		<div class="loader" id="loader"></div>
 		<div id="hostname"></div>
-		<div id="stats">Stats</div>
+		<div id="hud"></div>
 
 		<script src="console.js"></script>
 		<script src="3dview.js"></script>
