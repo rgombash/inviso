@@ -10,7 +10,7 @@ function console_command_parse(input)
 
 	switch(cmd[0]){
 		case "clear":
-			document.getElementById("window").innerHTML = "";
+			document.getElementById("consolewindow").innerHTML = "";
 			break;
 		case "list":
 			switch(cmd[1]){
@@ -119,7 +119,7 @@ function VisibilitySwitch(element_id, state) {
 
 function console_append(text)
 {
-	var consoleDiv = document.getElementById("window");
+	var consoleDiv = document.getElementById("consolewindow");
 	consoleDiv.innerHTML += text;
 	consoleDiv.innerHTML += "<br>";
 	consoleDiv.scrollTop = consoleDiv.scrollHeight;
@@ -138,4 +138,10 @@ function ConvertString(string) {
 	else out = string;
 
 	return out;
+}
+
+function setdetails(details)
+{
+	document.getElementById("detailswindow").innerHTML = details;
+	window.focus();
 }

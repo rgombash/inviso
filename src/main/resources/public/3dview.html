@@ -26,15 +26,28 @@
 				background-color: rgba(0,0,0,0.5);
 			}
 
+			#hud_center{
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				margin-top: 50px;
+				transform: translate(-50%, -50%);
+				background:#000;
+				color:#878787;
+				opacity: 0.6;
+				text-align: center;
+				display:none;
+			}
+
 			#hud{
-			    position: absolute;
-			    top: 50%;
-			    left: 50%;
-			    margin-top: 50px;
-			    transform: translate(-50%, -50%);
-			    background:#000;
-			    color:#878787;
-			    opacity: 0.6;
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				margin-top: 50px;
+				transform: translate(20px, -20px);
+				background:#000;
+				color:#878787;
+				opacity: 0.6;
 				text-align: center;
 				display:none;
 			}
@@ -54,27 +67,27 @@
 				opacity: 0.6;
 			}
 
-			#window{
-			    width:98%;
-			    margin:5px auto 5px auto;
-			    background:#999;
-			    height:250px;
-			    top:0px;
+			#consolewindow{
+				width:98%;
+				margin:5px auto 5px auto;
+				background:#999;
+				height:250px;
+				top:0px;
 				left:0px;
-			    padding:0px;
-			    color:#000;
-			    font-size:12pt;
-			    font-family:courier;
-			    overflow:scroll;
+				padding:0px;
+				color:#000;
+				font-size:12pt;
+				font-family:courier;
+				overflow:scroll;
 			}
 
 			#input_container{
-			    width:98%;
-			    margin:5px auto 5px auto;
-			    background:#000;
-			    top:0px;
+				width:98%;
+				margin:5px auto 5px auto;
+				background:#000;
+				top:0px;
 				left:0px;
-			    padding:0px;			    			    			    
+				padding:0px;
 			}
 
 			input[type=text] {
@@ -84,6 +97,31 @@
 				box-sizing: border-box;
 				border: 1px solid black;
 				border-radius: 5px;				
+			}
+
+			#detailswindow {
+				position: fixed;
+				bottom: 0;
+				right: 0;
+				height: 40%;
+				width: 25%;
+				background: #000;
+				color: #878787;
+				opacity: 0.6;
+				display: none;
+				font-size:10pt;
+				font-family:courier;
+				padding:5px;
+				transform: translate(-10px, -10px);
+				overflow:scroll;
+				/*disable text select*/
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+				/*********************/
 			}
 
 			#instructions {
@@ -146,10 +184,9 @@
 	<body>
 		<script src="threejs/r123/three.min.js"></script>
 		<script src="threejs/controls/PointerLockControls.js"></script>
-		<script type="text/javascript" src="threejs/lib/dat-gui/dat.gui.js"></script>
 
 		<div id="console">
-		    <div id="window">		 		              
+		    <div id="consolewindow">
 		    </div>
 		    <div id="input_container"><input id="console_input" type="text"/></div>
 		</div>
@@ -167,6 +204,7 @@
 		<div class="loader" id="loader"></div>
 		<div id="hostname"></div>
 		<div id="hud"></div>
+		<div id="detailswindow"></div>
 
 		<script src="console.js"></script>
 		<script src="3dview.js"></script>

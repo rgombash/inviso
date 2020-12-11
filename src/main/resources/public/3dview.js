@@ -1,37 +1,7 @@
-//gui
-var FizzyText = function() {
-	this.aimingAt = "";
-	this.aimingAtNamesapce = "";
-	this.name = "";
-	this.namespace = "";
-	this.project = "";
-	this.uid = "";
-	this.phase = "";
-	this.nodeType = "";
-	this.serviceProvider = "";
-	this.fulljson = "";
-	this.fog = false;
-};  			
-
-var guitext = new FizzyText();
-var gui = new dat.GUI({width: 600,});
-gui.add(guitext, 'aimingAt');
-gui.add(guitext, 'aimingAtNamesapce');
-gui.add(guitext, 'name');
-gui.add(guitext, 'namespace');
-gui.add(guitext, 'project');
-gui.add(guitext, 'uid');
-gui.add(guitext, 'phase');
-gui.add(guitext, 'nodeType');
-gui.add(guitext, 'serviceProvider');
-gui.add(guitext, 'fog');
-
-var f1 = gui.addFolder('more');
-f1.add(guitext, 'fulljson');
-//gui end
-
 //initialy hide loader
 HideShowLoader(false);
+//show HUD
+VisibilitySwitch("hud", true);
 
 var camera, scene, renderer;
 var geometry, material, mesh;
@@ -601,17 +571,12 @@ function animate() {
 			{
 				namespace = cam_intersections[ 0 ].object.userData['node']['payload']['metadata']['namespace'];				
 			}
-			
-			guitext.aimingAt = hostname;
-			guitext.aimingAtNamesapce = namespace;
-			gui.__controllers[0].updateDisplay();
-			gui.__controllers[1].updateDisplay();
-			
+
 			if(document.getElementById("hud").style.display != "none") document.getElementById("hud").innerHTML = "[" + hostname + "]<br>[" + namespace + "]";
 		} else {
 			if(document.getElementById("hud").style.display != "none" && document.getElementById("hud").innerHTML != "") document.getElementById("hud").innerHTML = "";
 		}
-		
+
 		velocity.x -= velocity.x * 10.0 * delta;
 		velocity.z -= velocity.z * 10.0 * delta;
 		velocity.y -= velocity.y * 10.0 * delta;
@@ -802,29 +767,29 @@ function HideShowLoader(showhide) {
 function selectbox(selectcubemesh){
 	if(scene.getObjectByName("ServersGroup").userData.intresection)
 	{
-		fqdn = scene.getObjectByName("ServersGroup").userData.intresection.userData['node']['name'];
-		
-		guitext.name = fqdn		
-		guitext.project = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.project;	
-		guitext.uid = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.uid;
-		guitext.phase = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.state;
-		guitext.nodeType = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.nodeType;
-		guitext.serviceProvider = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider;
+		var namespace = "";
 
 		//if provider k8s get namespace
 		if(scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider == "kubernetes")
 		{
-			guitext.namespace = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.payload.metadata.namespace;			
+			namespace = scene.getObjectByName("ServersGroup").userData.intresection.userData.node.payload.metadata.namespace;
 		}
-			
+
 		console.log(scene.getObjectByName("ServersGroup").userData.intresection.userData.node);
 
-		//update gui after changes
-		for (var i in gui.__controllers) 
-		{			
-			gui.__controllers[i].updateDisplay();
-		};			
-			  	
+		details = `
+			<b>name:</b> `+ scene.getObjectByName("ServersGroup").userData.intresection.userData['node']['name'] + `<br>
+			<b>uid:</b> ` + scene.getObjectByName("ServersGroup").userData.intresection.userData.node.uid + `<br>
+			<b>phase:</b> ` + scene.getObjectByName("ServersGroup").userData.intresection.userData.node.state + `<br>
+			<b>nodeType:</b> ` + scene.getObjectByName("ServersGroup").userData.intresection.userData.node.nodeType + `<br>
+			<b>namespace:</b> ` + namespace +`<br>
+			<b>project:</b> ` + scene.getObjectByName("ServersGroup").userData.intresection.userData.node.project + `<br>
+			<b>serviceProvider:</b> ` + scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider + `<br>
+		`;
+
+		setdetails(details);
+		VisibilitySwitch("detailswindow", true)
+
 		//move selector box
 		selectcubemesh.position.x = scene.getObjectByName("ServersGroup").userData.intresection.position.x;
 		selectcubemesh.position.y = scene.getObjectByName("ServersGroup").userData.intresection.position.y;
