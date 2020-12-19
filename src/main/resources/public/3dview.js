@@ -572,7 +572,7 @@ function animate() {
 				namespace = cam_intersections[ 0 ].object.userData['node']['payload']['metadata']['namespace'];				
 			}
 
-			if(document.getElementById("hud").style.display != "none") document.getElementById("hud").innerHTML = "[" + hostname + "]<br>[" + namespace + "]";
+			if(document.getElementById("hud").style.display != "none") document.getElementById("hud").innerHTML = hostname + "<br>" + namespace;
 		} else {
 			if(document.getElementById("hud").style.display != "none" && document.getElementById("hud").innerHTML != "") document.getElementById("hud").innerHTML = "";
 		}
@@ -764,7 +764,7 @@ function HideShowLoader(showhide) {
     }
 }
 
-function selectbox(selectcubemesh){
+function selectbox(selectcubemesh) {
 	if(scene.getObjectByName("ServersGroup").userData.intresection)
 	{
 		var namespace = "";
@@ -809,8 +809,7 @@ function keepAlive() {
     timerId = setTimeout(keepAlive, timeout);
 }
 
-function arrange_flat(ObjectGroup)
-{
+function arrange_flat(ObjectGroup) {
 	var prev_name = "";
 	var x=0;
 	var z=0;
@@ -853,8 +852,7 @@ function arrange_flat(ObjectGroup)
 	} );
 }
 
-function arrange_columns(ObjectGroup)
-{
+function arrange_columns(ObjectGroup) {
 	var prev_name = "";
 	var x=0;
 	var z=0;
@@ -881,8 +879,7 @@ function arrange_columns(ObjectGroup)
 	} );
 }
 
-
-function parse_query_string(){
+function parse_query_string() {
 	
 	var command = "";
 	var provider = "";
