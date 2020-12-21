@@ -109,6 +109,9 @@ var environment = [];
 environment['fog'] = false;
 environment['hud'] = false;
 
+var DetailsWindowScroll = 0;
+var ScrollSpeed = 15;
+
 init();
 animate();
 
@@ -245,10 +248,18 @@ function init() {
 
 	};
 
+	//scrollwheel event listener
+	window.addEventListener("wheel", event => {
+		DetailsWindowScroll = DetailsWindowScroll + Math.sign(event.deltaY) * ScrollSpeed;
+		if(DetailsWindowScroll < 0) DetailsWindowScroll = 0;
+		document.getElementById("detailswindow").scroll(0, DetailsWindowScroll);
+	});
+
+	//old scrollwheel events, check if it works
 	var onDocumentMouseWheel = function ( event ) {
 		mouseWheelDelata = event.wheelDeltaY
-
 	};
+
 	var onDocumentMouseDown = function( event ) {
 		selectbox(selectcubemesh);
 	};
@@ -615,6 +626,7 @@ function animate() {
 			if (mouseWheelDelata<0){
 				velocity.y -= vector.y * speed * delta * (AbsMouseWheelDelata/divDelta);
 				velocity.z += speed * delta * (AbsMouseWheelDelata/divDelta);
+
 			}
 
 			mouseWheelDelata=0;
@@ -785,8 +797,10 @@ function selectbox(selectcubemesh) {
 			<b>namespace:</b> ` + namespace +`<br>
 			<b>project:</b> ` + scene.getObjectByName("ServersGroup").userData.intresection.userData.node.project + `<br>
 			<b>serviceProvider:</b> ` + scene.getObjectByName("ServersGroup").userData.intresection.userData.node.serviceProvider + `<br>
+			<pre>`+ JSON.stringify(scene.getObjectByName("ServersGroup").userData.intresection.userData.node.payload, undefined, 2) +`</pre>
 		`;
 
+		resetscrolldetails();
 		setdetails(details);
 		VisibilitySwitch("detailswindow", true)
 

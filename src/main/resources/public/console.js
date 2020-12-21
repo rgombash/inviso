@@ -140,8 +140,15 @@ function ConvertString(string) {
 	return out;
 }
 
+//details window functions
 function setdetails(details)
 {
 	document.getElementById("detailswindow").innerHTML = details;
 	window.focus();
+}
+
+function resetscrolldetails()
+{
+	DetailsWindowScroll = 0;
+	document.getElementById("detailswindow").scroll(0, 0);
 }
