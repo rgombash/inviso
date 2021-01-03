@@ -1,7 +1,5 @@
 //initialy hide loader
 HideShowLoader(false);
-//show HUD
-VisibilitySwitch("hud", true);
 
 var camera, scene, renderer;
 var geometry, material, mesh;
@@ -105,12 +103,16 @@ var mouseWheelDelata = 0;
 var console_visible=false;
 document.getElementById("console").style.display = "none";
 
+//environment variables editable via console
 var environment = [];
 environment['fog'] = false;
-environment['hud'] = false;
+
+//show HUD
+environment['hud'] = true;
+VisibilitySwitch("hud", true);
 
 var DetailsWindowScroll = 0;
-var ScrollSpeed = 15;
+var ScrollSpeed = 25;
 
 init();
 animate();
@@ -404,8 +406,8 @@ function init() {
 				else if (provider == "gcp" | provider == "k8s") 
 					arr.sort(compareNameSort);
 	  			
-				prev_role = '';
-				prev_name = '';
+				var prev_name = '';
+				var alter_color = false;
 
 			 	console.log(arr.length)
 
@@ -419,20 +421,46 @@ function init() {
 
 					//material.color.setHSL( Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75 );
 					//change collor when role or name changes deppending on provider
+					var node_payload = arr[i];
+
+					//next color switch criteria check
 					if (provider == "openshift" ){
-						if (arr[i]['namespace'] != prev_role)
+						if (node_payload['namespace'] != prev_name)
 						{
-							ar = Math.random();	
-							br = Math.random();
-							prev_role = arr[i]['namespace']
+							alter_color = true;
+							prev_name = node_payload['namespace']
 						}
-					}else if (provider == "gcp" | provider == "k8s"){
-						if (arr[i]['name'].substring(0, 3) != prev_name.substring(0, 3))
+					}else if (provider == "gcp"){
+						if (node_payload['name'].substring(0, 3) != prev_name.substring(0, 3))
 						{
-							ar = Math.random();	
-							br = Math.random();
-							prev_name = arr[i]['name']
+							alter_color = true;
+							prev_name = node_payload['name']
 						}
+					}else if (provider == "k8s"){
+						var name_x = node_payload['name'].split("-");
+						var prev_name_x = prev_name.split("-");
+						if(name_x.length != prev_name_x.length){
+							alter_color = true;
+							prev_name = node_payload['name']
+						}else if(name_x.length - 2 <= 0 && node_payload['name'] != prev_name){
+							alter_color = true;
+							prev_name = node_payload['name'];
+						}else{
+							name_x.splice(name_x.length-2,2);
+							prev_name_x.splice(prev_name_x.length-2,2);
+							if(name_x.join("-") != prev_name_x.join("-"))
+							{
+								alter_color = true;
+								prev_name = node_payload['name'];	
+							}
+						}
+					}
+
+					//if name/namespace/role changed randomize cubes color
+					if(alter_color == true){
+						ar = Math.random();	
+						br = Math.random();
+						alter_color = false; 
 					}
 
 					material.color.setHSL(ar * 0.8 + 0.5, 0.75, br * 0.25 + 0.75 );
@@ -824,7 +852,6 @@ function keepAlive() {
 }
 
 function arrange_flat(ObjectGroup) {
-	var prev_name = "";
 	var x=0;
 	var z=0;
 	var y=0;
@@ -853,7 +880,7 @@ function arrange_flat(ObjectGroup) {
 			}
 			x++;
 
-			state = 1
+			state = 1;
 			
 			console.log(obj.userData.node.state);
 			if (obj.userData.node.state == 'running') state = 2;
@@ -867,7 +894,6 @@ function arrange_flat(ObjectGroup) {
 }
 
 function arrange_columns(ObjectGroup) {
-	var prev_name = "";
 	var x=0;
 	var z=0;
 	var y=0;

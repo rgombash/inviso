@@ -125,6 +125,7 @@ function console_append(text)
 	consoleDiv.scrollTop = consoleDiv.scrollHeight;
 }
 
+//convert string to boolean or number
 function ConvertString(string) {
 
 	var out;

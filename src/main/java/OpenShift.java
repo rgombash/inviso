@@ -95,10 +95,11 @@ public class OpenShift {
                         //Nodes.put(new JSONObject(node.get("items").get(i).get("metadata").toString()));
 
                         Transformer tr = new Transformer();
-                        tr.uid=node.get("items").get(i).get("metadata").get("uid").toString();
+                        tr.uid=node.get("items").get(i).get("metadata").get("uid").asText();
                         //Node.getJSONObject("metadata").get("uid").toString());
                         tr.name=node.get("items").get(i).get("metadata").get("name").asText();
-                        tr.state=node.get("items").get(i).get("status").get("phase").toString().toLowerCase();
+                        tr.state=node.get("items").get(i).get("status").get("phase").asText().toLowerCase();
+                        //tr.state=node.get("items").get(i).get("status").get("phase").toString().toLowerCase();
                         // Node.getJSONObject("status").get("phase").toString().toLowerCase()
                         tr.type="pod";
                         tr.serviceProvider="openshift";
