@@ -121,7 +121,7 @@ function init() {
 
 	camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );			
 	
-	crosshair = new THREE.Mesh(
+	var crosshair = new THREE.Mesh(
 		new THREE.RingGeometry( 0.02, 0.04, 32 ),
 		new THREE.MeshBasicMaterial( {
 			color: 0xf4d142,
@@ -351,11 +351,9 @@ function init() {
 	//***********************
 	
 	var wsUri = "ws://" + location.hostname + ":" + location.port + "/wsapi";
-	
-	querystring = parse_query_string();
-
-	command = querystring['command'];
-	provider = querystring['provider'];
+	var querystring = parse_query_string();
+	var command = querystring['command'];
+	var provider = querystring['provider'];
 
 	console_append("request: " + command);
 
@@ -380,15 +378,16 @@ function init() {
 		{
 
 			var full_arr1 = JSON.parse(message.data);
-			full_arr = JSON.parse(full_arr1.userMessage);
+			var response_command = "";
+			var full_arr = JSON.parse(full_arr1.userMessage);
 			
 			//console.log("parsed json > " + full_arr);
 									
 			if(typeof full_arr.response === 'undefined') {
-			    response_command = "undefined";
+				response_command = "undefined";
 			}
 			else {
-			    response_command = full_arr.response;
+				response_command = full_arr.response;
 			}
 
 			console.log("server command > " + response_command);
@@ -397,7 +396,7 @@ function init() {
 			if (response_command=="response_openshift_get_pods" || response_command=="response_gcp_get_compute" || response_command=="response_kubernetes_get_pods")
 			{
 
-				arr = full_arr.data;
+				var arr = full_arr.data;
 				object_count = arr.length					 
 
 				//sort by project or name depending on provider
@@ -405,15 +404,15 @@ function init() {
 					arr.sort(compareRoleSort);
 				else if (provider == "gcp" | provider == "k8s") 
 					arr.sort(compareNameSort);
-	  			
+
 				var prev_name = '';
 				var alter_color = false;
 
-			 	console.log(arr.length)
+				console.log(arr.length)
 
 			 	//draw cubes
-			  	for (var i = 0, len = arr.length; i < len; i++) {
-		
+				for (var i = 0, len = arr.length; i < len; i++) {
+
 					//cubes 	
 					//material = new THREE.MeshPhongMaterial( { specular: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors } );
 					material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, vertexColors: THREE.VertexColors } );
@@ -458,8 +457,8 @@ function init() {
 
 					//if name/namespace/role changed randomize cubes color
 					if(alter_color == true){
-						ar = Math.random();	
-						br = Math.random();
+						var ar = Math.random();	
+						var br = Math.random();
 						alter_color = false; 
 					}
 
@@ -476,17 +475,19 @@ function init() {
 					ServerGroup.add( mesh );
 
 				//end cube draw
-			  	}
+				}
 
 			  	//cubes placement
-			  	arrange_flat(scene.getObjectByName("ServersGroup"));
+				arrange_flat(scene.getObjectByName("ServersGroup"));
 
 			//end getservers section
 			}
 			
 			if(response_command=="getgraphite"){
 				//legacy artefact for fetching graphite data
-				index = -1
+				var index = -1;
+				var scalar = 0;
+				var graphite_value = 0;
 				console.log(full_arr[0]['nodes']);
 				console.log(full_arr[0]['values']);
 				scene.getObjectByName("ServersGroup").traverse( function ( objx ) {							
@@ -598,14 +599,14 @@ function animate() {
 			scene.getObjectByName("ServersGroup").userData.intresection=cam_intersections[ 0 ].object
 			
 			//console.log(intersections[ 0 ].object.userData['node']);
-			role = cam_intersections[ 0 ].object.userData['node']['project'];
-			host = cam_intersections[ 0 ].object.userData['node']['name'];
-			hostname = cam_intersections[ 0 ].object.userData['node']['name'];
+			var role = cam_intersections[ 0 ].object.userData['node']['project'];
+			var host = cam_intersections[ 0 ].object.userData['node']['name'];
+			var hostname = cam_intersections[ 0 ].object.userData['node']['name'];
 			//console.log(cam_intersections[ 0 ].object.position)
 			//console.log(host);
 			
 			//get namespace if provider k8s
-			namespace = "none";
+			var namespace = "none";
 			if(cam_intersections[ 0 ].object.userData['node']['serviceProvider'] == "kubernetes")
 			{
 				namespace = cam_intersections[ 0 ].object.userData['node']['payload']['metadata']['namespace'];				
@@ -623,7 +624,7 @@ function animate() {
 		//console.log(camera.getWorldDirection);
 		//velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
 
-		speed = 1800.0
+		var speed = 1800.0
 
 		if ( moveForward ) velocity.y += vector.y * speed * delta;
 		if ( moveBackward ) velocity.y -= vector.y * speed * delta;
@@ -643,9 +644,8 @@ function animate() {
 		if(mouseWheelDelata!=0)
 		{
 			//speed divider, lower value higher mousewhell speed
-			divDelta=15;
-			
-			AbsMouseWheelDelata = Math.abs(mouseWheelDelata);
+			var divDelta=15;
+			var AbsMouseWheelDelata = Math.abs(mouseWheelDelata);
 
 			if (mouseWheelDelata>0){
 				velocity.y += vector.y * speed * delta * (AbsMouseWheelDelata/divDelta);
@@ -691,28 +691,29 @@ function animate() {
 		// on keypress do stuff
 		if (Key2){
 			//reset sizes and position 
+			var state = 1;
 			scene.getObjectByName("ServersGroup").traverse( function ( obj ) {
-			 	if(obj.name!="ServersGroup"){
+				if(obj.name!="ServersGroup"){
 			 	 	//reset scale
-				 	obj.scale.y = 1;
-					//reset position 
-					state = 1
+					obj.scale.y = 1;
+					//reset position
+					state = 1;
 					if (obj.userData.node.state == 'live') state = 2;
 					//obj.position.y = state * 10 * 1.5;					
 					obj.position.y = state * scale * grid_density;
 				}
 
 			} );
- 		
+
 			Key2 = false;
 		}
 
 		// on keypress do stuff
 		if (Key3){
-			x=0;
+			var x=0;
 			scene.getObjectByName("ServersGroup").traverse( function ( obj ) {
-			 	x +=1;
-			 	if(x>10) x=1;														
+				x +=1;
+				if(x>10) x=1;
 				//delta = 10 * Math.random()
 				scaleY(obj,x);
 			} );
@@ -740,7 +741,7 @@ function animate() {
 					hostnames.push(obj.name);							
 			} );
 
-			command = '{"command":"GetGraphite","metric_name":"load","GraphiteTarget":"movingMedian(sys.<fqdn>.loadavg.01,\'20min\')","nodes":'+ JSON.stringify(hostnames) + '}'
+			var command = '{"command":"GetGraphite","metric_name":"load","GraphiteTarget":"movingMedian(sys.<fqdn>.loadavg.01,\'20min\')","nodes":'+ JSON.stringify(hostnames) + '}'
 			
 			//show loader
 			HideShowLoader(true);
@@ -772,26 +773,26 @@ function scaleY ( meshx, scalex ) {
 
 //fetch the query string 			
 function QueryString() {
-  // This function is anonymous, is executed immediately and 
-  // the return value is assigned to QueryString!
-  var query_string = {};
-  var query = window.location.search.substring(1);
-  var vars = query.split("&");
-  for (var i=0;i<vars.length;i++) {
-    var pair = vars[i].split("=");
-        // If first entry with this name
-    if (typeof query_string[pair[0]] === "undefined") {
-      query_string[pair[0]] = decodeURIComponent(pair[1]);
-        // If second entry with this name
-    } else if (typeof query_string[pair[0]] === "string") {
-      var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
-      query_string[pair[0]] = arr;
-        // If third or later entry with this name
-    } else {
-      query_string[pair[0]].push(decodeURIComponent(pair[1]));
-    }
-  } 
-  return query_string;
+	// This function is anonymous, is executed immediately and
+	// the return value is assigned to QueryString!
+	var query_string = {};
+	var query = window.location.search.substring(1);
+	var vars = query.split("&");
+	for (var i=0;i<vars.length;i++) {
+		var pair = vars[i].split("=");
+			// If first entry with this name
+		if (typeof query_string[pair[0]] === "undefined") {
+		query_string[pair[0]] = decodeURIComponent(pair[1]);
+			// If second entry with this name
+		} else if (typeof query_string[pair[0]] === "string") {
+		var arr = [ query_string[pair[0]],decodeURIComponent(pair[1]) ];
+		query_string[pair[0]] = arr;
+			// If third or later entry with this name
+		} else {
+		query_string[pair[0]].push(decodeURIComponent(pair[1]));
+		}
+	} 
+	return query_string;
 };
 
 //show hide loader div
@@ -817,7 +818,7 @@ function selectbox(selectcubemesh) {
 
 		console.log(scene.getObjectByName("ServersGroup").userData.intresection.userData.node);
 
-		details = `
+		var details = `
 			<b>name:</b> `+ scene.getObjectByName("ServersGroup").userData.intresection.userData['node']['name'] + `<br>
 			<b>uid:</b> ` + scene.getObjectByName("ServersGroup").userData.intresection.userData.node.uid + `<br>
 			<b>phase:</b> ` + scene.getObjectByName("ServersGroup").userData.intresection.userData.node.state + `<br>
@@ -848,7 +849,7 @@ function keepAlive() {
     if (websocket.readyState == websocket.OPEN) {
         websocket.send('{"command":"keepalive"}');
     }
-    timerId = setTimeout(keepAlive, timeout);
+    var timerId = setTimeout(keepAlive, timeout);
 }
 
 function arrange_flat(ObjectGroup) {
@@ -898,6 +899,8 @@ function arrange_columns(ObjectGroup) {
 	var z=0;
 	var y=0;
 
+	var prev_name = "";
+
 	ObjectGroup.traverse( function ( obj ) {
 		if(obj.name!="ServersGroup")
 		{
@@ -925,8 +928,12 @@ function parse_query_string() {
 	var provider = "";
 	var out = [];
 
+	var search = "";
+	var project = "";
+	var zone = "";
+
 	//get the query string
-	querystrig = QueryString();
+	var querystrig = QueryString();
 	if (querystrig.search)
 		search = querystrig.search;
 	else

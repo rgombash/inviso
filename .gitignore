@@ -5,3 +5,5 @@ src/main/resources/public/api/*
 config.properties
 inviso.iml
 local_notes.txt
+tmp
+

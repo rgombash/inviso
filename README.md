@@ -30,7 +30,7 @@ It is written in Java and Spark framework. Currently has Kubernetes, OpenShift, 
 Apart from the WebSocket endpoint service also has an HTTP endpoint for static content. 
 By default, the service runs on port 4567 (both HTTP and WS)
 
-#### Proxy Service plugins
+#### Proxy Service plugins configuration
 
 ##### OpenShift Plugin
 
@@ -107,6 +107,21 @@ Copy dist.config.properties to config.properties and update authentication and c
 `java -cp target/inviso-1.0-SNAPSHOT-jar-with-dependencies.jar ProxyService`
 
 If running locally you should go to http://localhost:4567 for index page
+
+##### Running in Docker
+
+Get the repository and change directory
+`git clone git@github.com:rgombash/inviso.git & cd inviso`
+
+`cp dist.config.properties config.properties`
+Edit config.properties and update authentication and config data according to your setup
+Note: For accessing viewing GC Compute or Kubernetes you will have to get your configs into the container image, ether by adding them to Dockerfile or using 'docker cp' command. Refer to the plugins section for details.
+
+Build the image
+`docker build -t inviso .`
+
+Run the image
+`docker run -p 4567:4567 inviso`
 
 ### TODOs
 * Add LDAP auth to HTTP (some basic auth is already there, but it is disabled, had problems with .js loading on Firefox)
