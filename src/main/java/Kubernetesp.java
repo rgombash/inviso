@@ -21,28 +21,35 @@ import java.time.Instant;
 public class Kubernetesp {
     public static JSONArray GetPods(String Context) throws IOException, ApiException {
         JSONArray Nodes = new JSONArray();
+        if(ProxyService.prop.getProperty("kubernetes_config_mode").equals("file_config")) {
+            // file path to your KubeConfig
+            String kubeConfigPath = ProxyService.prop.getProperty("kubernetes_config");
+            // loading the out-of-cluster config, a kubeconfig from file-system
+            // ApiClient client = ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
 
-        // file path to your KubeConfig
-        String kubeConfigPath = ProxyService.prop.getProperty("kubernetes_config");
-        // loading the out-of-cluster config, a kubeconfig from file-system
-        // ApiClient client = ClientBuilder.kubeconfig(KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath))).build();
+            KubeConfig kubeconfig = KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath));
+            kubeconfig.setContext(Context);
+            System.out.println(kubeconfig.getContexts());
+            System.out.println(kubeconfig.getCurrentContext());
 
-        KubeConfig kubeconfig = KubeConfig.loadKubeConfig(new FileReader(kubeConfigPath));
-        kubeconfig.setContext(Context);
-        System.out.println(kubeconfig.getContexts());
-        System.out.println(kubeconfig.getCurrentContext());
+            ApiClient client = ClientBuilder.kubeconfig(kubeconfig).build();
+            Configuration.setDefaultApiClient(client);
 
-        ApiClient client = ClientBuilder.kubeconfig(kubeconfig).build();
+        } else if(ProxyService.prop.getProperty("kubernetes_config_mode").equals("incluster")){
+            ApiClient client = ClientBuilder.cluster().build();
+            Configuration.setDefaultApiClient(client);
+
+        }
 
         // set the global default api-client to the in-cluster one from above
-        Configuration.setDefaultApiClient(client);
+        //Configuration.setDefaultApiClient(client);
 
         // the CoreV1Api loads default api-client from global configuration.
         CoreV1Api api = new CoreV1Api();
 
         // invokes the CoreV1Api client
-        V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
-
+        // V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
+        V1PodList list = api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null, null);
         for (V1Pod item : list.getItems()) {
 
             //System.out.println(item.toString());
